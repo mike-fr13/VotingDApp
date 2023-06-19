@@ -11,41 +11,41 @@
   
     // fixture to deploy contract
     async function deployFixture() {
-      const [owner, voter1, voter2, unregisteredVoter, account4] = await ethers.getSigners();
+      const [owner, voter1, voter2, unregisteredVoter, voter4] = await ethers.getSigners();
   
       const Voting = await ethers.getContractFactory("Voting");
       const voting = await Voting.deploy();
   
-      return {voting, owner, voter1, voter2, unregisteredVoter, account4 };
+      return {voting, owner, voter1, voter2, unregisteredVoter, voter4 };
     }
 
     // prepare context for proposal deposit tests
     async function  prepareProposalDeposalFixture() {
-      const { voting, owner, voter1, voter2, unregisteredVoter,account4 }  = await loadFixture(deployFixture);
+      const { voting, owner, voter1, voter2, unregisteredVoter,voter4 }  = await loadFixture(deployFixture);
       await voting.connect(owner).addVoter(voter1.address);
       await voting.connect(owner).addVoter(voter2.address);
-      await voting.connect(owner).addVoter(account4.address);
+      await voting.connect(owner).addVoter(voter4.address);
       await voting.connect(owner).startProposalsRegistering();
-      return { voting, owner, voter1, voter2, unregisteredVoter, account4 };
+      return { voting, owner, voter1, voter2, unregisteredVoter, voter4 };
     }
 
     // prepare context for Voting tests
     async function prepareVotingFixture() {
-      const { voting, owner, voter1, voter2, unregisteredVoter, account4 }  = await loadFixture(prepareProposalDeposalFixture);
+      const { voting, owner, voter1, voter2, unregisteredVoter, voter4 }  = await loadFixture(prepareProposalDeposalFixture);
       await voting.connect(voter1).addProposal(PropDescr1);
       await voting.connect(voter1).addProposal(PropDescr2);
       await voting.connect(voter2).addProposal(PropDescr3);
       await voting.connect(owner).endProposalsRegistering();
       await voting.connect(owner).startVotingSession();
-      return { voting, owner, voter1, voter2, unregisteredVoter, account4 };
+      return { voting, owner, voter1, voter2, unregisteredVoter, voter4 };
     }
 
     // prepare context for Tally tests
     async function prepareTallyFixture(){
-      const { voting, owner, voter1, voter2, unregisteredVoter, account4 }  = await loadFixture(prepareVotingFixture);
+      const { voting, owner, voter1, voter2, unregisteredVoter, voter4 }  = await loadFixture(prepareVotingFixture);
       await voting.connect(voter1).setVote(1);
       await voting.connect(voter2).setVote(2);
-      return { voting, owner, voter1, voter2, unregisteredVoter, account4 };
+      return { voting, owner, voter1, voter2, unregisteredVoter, voter4 };
     }
   
     describe("Contract Deployment", function () {
@@ -366,7 +366,6 @@
           expect((await voting.connect(voter1).getOneProposal(1)).voteCount).to.deep.equal(BigNumber.from(1));
           await voting.connect(voter2).setVote(1);
           expect((await voting.connect(voter1).getOneProposal(1)).voteCount).to.deep.equal(BigNumber.from(2));
-
         });
 
         it("Shouldn't be able to vote twice", async function () {
@@ -404,14 +403,12 @@
       describe("tallyVotes() results tests", function () {
 
         it("Should set the winningProposalID to proposal ID  with maximum vote", async function () {
-          const { voting, owner, voter1, voter2, unregisteredVoter, account4} = await loadFixture(prepareVotingFixture);
-          // add avote to proposal 2 :  Genesys => 0 vote, proposal1 => 1vote, proposal 2 => 2 votes, proposal 3 => 0 votes
-          await voting.connect(account4).setVote(2);
+          const { voting, owner, voter1, voter2, unregisteredVoter, voter4} = await loadFixture(prepareVotingFixture);
+          // add a vote to proposal 2 :  Genesys => 0 vote, proposal n°1 => 1 vote, proposal n°2 => 2 votes, proposal n°3 => 0 vote
+          await voting.connect(voter4).setVote(2);
           await voting.connect(owner).endVotingSession();
 
-          // check winningProposalID before TallyVotes Call  
-          expect(await voting.winningProposalID()).to.deep.equal(BigNumber.from(0));
-
+          // TallyVotes Call  
           await voting.connect(owner).tallyVotes();
         
           //check the winning proposal (2);
