@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 
 pragma solidity 0.8.13;
-import "../node_modules/@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
 /// @title A voting system smart contract
 /// @author Yannick Tison
@@ -113,6 +113,12 @@ contract Voting is Ownable {
         voters[msg.sender].hasVoted = true;
         proposalsArray[_id].voteCount++;
 
+        // if _id proposal became the proposal with current max vote, then assign winningProposalID
+        // this code could avoid the loop in tally function
+        if (proposalsArray[_id].voteCount > proposalsArray[winningProposalID].voteCount) {
+            winningProposalID = _id;
+        }
+
         emit Voted(msg.sender, _id);
     }
 
@@ -154,14 +160,6 @@ contract Voting is Ownable {
     /// @notice Tally vote function for the owner
    function tallyVotes() external onlyOwner {
        require(workflowStatus == WorkflowStatus.VotingSessionEnded, "Current status is not voting session ended");
-       uint _winningProposalId;
-      for (uint256 p = 0; p < proposalsArray.length; p++) {
-           if (proposalsArray[p].voteCount > proposalsArray[_winningProposalId].voteCount) {
-               _winningProposalId = p;
-          }
-       }
-       winningProposalID = _winningProposalId;
-       
        workflowStatus = WorkflowStatus.VotesTallied;
        emit WorkflowStatusChange(WorkflowStatus.VotingSessionEnded, WorkflowStatus.VotesTallied);
     }
