@@ -2,9 +2,10 @@ import React from 'react'
 import { useContext } from 'react';
 import { EthContext } from '@/context/EthContext';
 import { chakra } from '@chakra-ui/react';
+import { getChainName } from '@/utils/chainUtils';
 
 export const MetamaskButton = () => {
-  const { account, connectWallet, error } = useContext(EthContext);
+  const { account, connectWallet, chainId, error } = useContext(EthContext);
   console.log(error);
 
   return (
@@ -16,7 +17,7 @@ export const MetamaskButton = () => {
             bg='green.200'
             rounded='md'
         >
-            {account}
+            {getChainName(chainId)} : {account}
         </chakra.button>
         ) : (
             <chakra.button
