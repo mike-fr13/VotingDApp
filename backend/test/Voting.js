@@ -320,7 +320,7 @@
       describe("setVote() tests", function () {
         it("Should revert with 'You\'re not a voter' error if called with an unregistered voter", async function () {
           const { voting, owner, voter1, voter2, unregisteredVoter } = await loadFixture(prepareVotingFixture);
-          await expect(voting.connect(unregisteredVoter).getOneProposal(1)).to.be.revertedWith("You're not a voter");
+          await expect(voting.connect(unregisteredVoter).setVote(1)).to.be.revertedWith("You're not a voter");
         });
 
         it("Should revert with 'Voting session havent started yet' error if not in VotingSessionStarted status", async function () {
