@@ -53,4 +53,4 @@ export const MetamaskButton = () => {
   )
 }
 
-export default MetamaskButton
+export default MetamaskButton;

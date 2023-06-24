@@ -3,11 +3,12 @@ import React from 'react';
 import Header from '@/components/Header';
 import Main from '@/components/Main';
 import Footer from '@/components/Footer';
-import { Box } from "@chakra-ui/react";
 import { Button } from '@chakra-ui/react';
 import Link from 'next/link';
 import { EthContext } from '@/context/EthContext';
 import { useContext } from 'react';
+import StatusSwitcher from "@/components/WorkflowStatus/StatusSwitcher";
+import { Box, Stack } from "@chakra-ui/react";
 
 const admin = () => {
   const { isOwner} = useContext(EthContext);
@@ -15,12 +16,9 @@ const admin = () => {
     isOwner ? (
       <Box minHeight="100vh" w='80%' p='5' display="flex" flexDirection="column">
         <Header />
-        <Box flex="100%" p='5'>
-            Page d'administration 
-        </Box>
-        <Box>
-          <Footer />
-        </Box>
+        <Stack>
+          <StatusSwitcher />
+        </Stack>
     </Box>
     ) : (
       <Button
@@ -36,4 +34,4 @@ const admin = () => {
   )
 }
 
-export default admin
+export default admin;

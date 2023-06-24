@@ -1,25 +1,42 @@
-'use client'
-import React, { createContext, useEffect,useLayoutEffect, useState } from "react";
+"use client";
+import React, { createContext, useEffect, useState } from "react";
 import { Contract, ContractInterface, ethers } from "ethers";
 import votingABI from "@/utils/abi";
-import {useToast} from "@chakra-ui/react";
+import { redirect } from "next/navigation";
+import { Voting } from "@/types/ethers-contracts";
+import { useToast } from "@chakra-ui/react";
 
 
+//TODO passer en variabel envt
+const votingContractAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
+const { ethereum } = (typeof window !== "undefined" ? window : {}) as {
+  ethereum: any;
+};
+const ethereumWindow = (window as unknown as any)
+  .ethereum as import("ethers").providers.ExternalProvider;
+const provider = new ethers.providers.Web3Provider(ethereumWindow);
 
-//TODO passer en variable envt
-const votingContractAddress='0x5FbDB2315678afecb367f032d93F642f64180aa3';
-const { ethereum } = (typeof window !== "undefined" ? window : {}) as { ethereum: any };
-const ethereumWindow = (window as unknown as any).ethereum as import('ethers').providers.ExternalProvider;
-const provider = new ethers.providers.Web3Provider(ethereumWindow)
-const votingContract = new ethers.Contract(votingContractAddress, votingABI, provider)
-const contractWithSigner = votingContract.connect(provider.getSigner());
+const contract = new ethers.Contract(
+  votingContractAddress,
+  votingABI,
+  provider
+) as Voting;
 
-export const EthContext = createContext(null);
+const contractWithSigner = contract.connect(provider.getSigner());
+
+type EthContextType = {
+  account: string;
+  connectWallet: () => void;
+  chainId: string;
+  isOwner: boolean;
+  contractWithSigner: Voting;
+};
+
+export const EthContext = createContext<EthContextType>(null);
 
 export const EthProvider = ({ children }) => {
   const [account, setAccount] = useState("");
   const [chainId, setChainId] = useState("")
-  const [contract, setcontract] = useState(votingContract);  
   const [isOwner, setIsOwner] = useState<boolean>(false);
   const [proposals, setProposals] = useState([]);  
   const toast = useToast();
@@ -135,7 +152,7 @@ export const EthProvider = ({ children }) => {
 
   }
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     if (checkEthereumExists()) {
       getConnectedAccounts();
       ethereum.request({ method: "eth_chainId" }).then((chainId) => {setChainId(chainId)});
@@ -154,23 +171,24 @@ export const EthProvider = ({ children }) => {
 
   useEffect(() => {
     const getOwner = async () => {
-      const ownerAddress = await contract.owner()
-      return ownerAddress
-    }
+      console.log(contract, "contract");
+      const ownerAddress = await contract.owner();
+      return ownerAddress;
+    };
 
-    if(account){
+    if (account) {
       getOwner().then((ownerAddress) => {
         console.log('useEffect[account] - ownerAddress : ', ownerAddress )
         if(ethers.utils.getAddress(ownerAddress) === ethers.utils.getAddress(account)){
           setIsOwner(true)
         } else {
-          setIsOwner(false)
+          setIsOwner(false);
         }
-      })
+      });
     }
   }, [account])
   return (
-    <EthContext.Provider value={{ account, chainId, connectWallet, isOwner, proposals, contract, contractWithSigner}}>
+    <EthContext.Provider value={{ account, chainId, connectWallet, isOwner, contractWithSigner}}>
       {children}
     </EthContext.Provider>
   );

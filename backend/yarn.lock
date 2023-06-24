@@ -7181,7 +7181,7 @@
   "resolved" "https://registry.npmjs.org/type/-/type-2.7.2.tgz"
   "version" "2.7.2"
 
-"typechain@^8.1.0", "typechain@^8.1.1":
+"typechain@^8.1.0", "typechain@^8.1.1", "typechain@^8.2.0":
   "integrity" "sha512-tZqhqjxJ9xAS/Lh32jccTjMkpx7sTdUVVHAy5Bf0TIer5QFNYXotiX74oCvoVYjyxUKDK3MXHtMFzMyD3kE+jg=="
   "resolved" "https://registry.npmjs.org/typechain/-/typechain-8.2.0.tgz"
   "version" "8.2.0"
