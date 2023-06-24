@@ -4,6 +4,9 @@ import { EthContext } from '@/context/EthContext';
 import { chakra } from '@chakra-ui/react';
 import { getChainName } from '@/utils/chainUtils';
 
+
+
+
 export const MetamaskButton = () => {
   const { account, connectWallet, chainId, error } = useContext(EthContext);
   console.log(error);
@@ -31,7 +34,6 @@ export const MetamaskButton = () => {
                 Connect your Wallet
             </chakra.button>    
         )}
-        {error && <p className={`error shadow-border`}>{`Error: ${error}`}</p>}
     </div>
   )
 }

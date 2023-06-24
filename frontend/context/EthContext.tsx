@@ -3,17 +3,16 @@ import React, { createContext, useEffect, useState } from "react";
 import {ethers} from "ethers";
 import votingABI from "@/utils/abi";
 import { redirect } from 'next/navigation'
+import {useToastHook} from "@/components/Toast";
 
 
 //TODO passer en variabel envt
 const votingContractAddress='0x5FbDB2315678afecb367f032d93F642f64180aa3';
-                           
-
-// const VotingContract = new ethers.Contract(votingContractAddress, votingABI, provider);
-
-
-
 const { ethereum } = (typeof window !== "undefined" ? window : {}) as { ethereum: any };
+const ethereumWindow = (window as unknown as any).ethereum as import('ethers').providers.ExternalProvider;
+const provider = new ethers.providers.Web3Provider(ethereumWindow)
+const contract = new ethers.Contract(votingContractAddress, votingABI, provider)
+
 export const EthContext = createContext(null);
 
 export const EthProvider = ({ children }) => {
@@ -21,7 +20,7 @@ export const EthProvider = ({ children }) => {
   const [error, setError] = useState("");
   const [chainId, setChainId] = useState("")
   const [isOwner, setIsOwner] = useState<boolean>(false);
-  
+  const [state, newToast] = useToastHook();  
 
   const checkEthereumExists = () => {
     if (!ethereum) { 
@@ -51,10 +50,15 @@ export const EthProvider = ({ children }) => {
         const accounts = await ethereum.request({ method: "eth_requestAccounts",});
         setAccount(accounts[0]);
         console.log(accounts);
-
-
       } catch (err) {
-        setError(err.message);
+        if (err.code === 4001) {
+          setError('Please connect to Metamask');
+          newToast({ message: error, status: "error" });
+        }
+        else {
+          setError(err.message);
+          newToast({ message: err.message, status: "error" });
+        }
       }
     }
   };
@@ -79,17 +83,6 @@ export const EthProvider = ({ children }) => {
     };
   }, []);
 
-  //reload page on chain change
-  useEffect(() => {
-  
-  }, []);
-
-  const ethereumWindow = (window as unknown as any).ethereum as import('ethers').providers.ExternalProvider;
-  const provider = new ethers.providers.Web3Provider(ethereumWindow)
-  const contract = new ethers.Contract(votingContractAddress, votingABI, provider)
-
-  
-  
   useEffect(() => {
     const getOwner = async () => {
       const ownerAddress = await contract.owner()
