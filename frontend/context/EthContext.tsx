@@ -101,7 +101,7 @@ export const EthProvider = ({ children }) => {
    *  Get existing voters
   */
   const getVoters = async () => {
-    /*
+    
     const votersFilter = contract.filters.VoterRegistered();
     const events = await contract.queryFilter(votersFilter)
     console.log ('Voters : ', events);
@@ -111,7 +111,9 @@ export const EthProvider = ({ children }) => {
         const voterAddress = event.args.voterAddress;
   
         // Appel à la fonction getOneProposal pour obtenir les détails de la proposition
-        const voter = await contract.getVoter(voterAddress)
+        console.log(voterAddress)
+        console.log(ethers.utils.getAddress(voterAddress)) 
+        const voter = await contract.getVoter(ethers.utils.getAddress(voterAddress))
   
         // Crée un nouvel objet de proposition
         return {
@@ -122,7 +124,7 @@ export const EthProvider = ({ children }) => {
         };
       })
     )
-      */
+    
   }
 
   /*
