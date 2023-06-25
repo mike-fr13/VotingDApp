@@ -1,5 +1,5 @@
 'use client'
-import React, { createContext, useEffect, useState } from "react";
+import React, { createContext, useEffect,useLayoutEffect, useState } from "react";
 import {ethers} from "ethers";
 import votingABI from "@/utils/abi";
 import {redirect} from 'next/navigation'
@@ -22,6 +22,7 @@ export const EthProvider = ({ children }) => {
   const [isOwner, setIsOwner] = useState<boolean>(false);
   const [proposals, setProposals] = useState([]);  
   const [voters, setVoters] = useState([]);  
+  const [workflowStatus, setWorkflowStatus] = useState(0);  
   const [state, newToast] = useToastHook();  
 
 
@@ -66,27 +67,48 @@ export const EthProvider = ({ children }) => {
     }
   };
 
-  const handleEvents = async ()=>  {
-   
-    //event VoterRegistered(address voterAddress); 
-    //event WorkflowStatusChange(WorkflowStatus previousStatus, WorkflowStatus newStatus);
-    //event ProposalRegistered(uint proposalId);
-    //event Voted (address voter, uint proposalId);
+  /*
+   *  Get existing proposals
+  */
+  const getProposals = async () => {
+    const proposalsFilter = contract.filters.ProposalRegistered();
+    const events = await contract.queryFilter(proposalsFilter)
+    console.log ('Proposals : ', events);
+  }
+
+
+  /*
+   *  Get existing voters
+  */
+  const getVoters = async () => {
+    const votersFilter = contract.filters.VoterRegistered();
+    const events = await contract.queryFilter(votersFilter)
+    console.log ('Voters : ', events);
+  }
+
+  /*
+   * Manage all contract events
+  */
+  const handleContractEvents = async ()=>  {
 
     contract.on("VoterRegistered", (voterAddress) => {
-      console.log(voterAddress);
+      console.log('VoterRegistered event : ',voterAddress);
       // TODO ajout d'un voter à une liste en state
     });
     contract.on("WorkflowStatusChange", (previousStatus,newStatus) => {
-      console.log(previousStatus,newStatus);
+      console.log('WorkflowStatusChange event : ',previousStatus,newStatus);
       // MAJ du status de workflow
+      setWorkflowStatus(newStatus);
     });
     contract.on("ProposalRegistered", (proposalId) => {
-      console.log(proposalId);
-      // TODO ajout d'une proposal à une liste en state
+      console.log('ProposalRegistered event : ', proposalId);
+      //ajout d'une proposal à une liste en state
+      //TODO recup l'objet proposal
+      proposals.push({proposalId : proposalId, proposalDescription: 'TODO', nbVote :'TODO'})
+      setProposals(proposals)
     });
     contract.on("Voted", (voter, proposalId) => {
-      console.log(voter, proposalId);
+      console.log('Voted event : ', voter, proposalId);
       // à voir ce qu'on fait  de cet evenement
     });
   }; 
@@ -99,7 +121,7 @@ export const EthProvider = ({ children }) => {
   }
 
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (checkEthereumExists()) {
       ethereum.on("accountsChanged", getConnectedAccounts);
       getConnectedAccounts();
@@ -108,15 +130,9 @@ export const EthProvider = ({ children }) => {
         setChainId(chainId)
       });
       console.log({isOwner, account})
-      handleEvents()
-      setProposals([
-        {description : "description 1", id :1},
-        {description : "description 2", id :2},
-        {description : "description 3", id :3},
-        {description : "description 4", id :4},
-        {description : "description 5", id :5},
-        {description : "description 6", id :6},
-      ])
+      getProposals()
+      getVoters()
+      handleContractEvents()
     }
     return () => {
       if (checkEthereumExists()) {
@@ -128,6 +144,7 @@ export const EthProvider = ({ children }) => {
       removeHandledEvents();
     };
   }, []);
+
 
   useEffect(() => {
     const getOwner = async () => {
@@ -146,16 +163,6 @@ export const EthProvider = ({ children }) => {
       })
     }
   }, [account])
-
-  /*
-  useEffect(() => {
-    console.log(window.location.href)
-    if(isOwner && window.location.href !== "http://localhost:3000/admin"){
-      redirect('/admin')
-    }
-  }, [isOwner])
-  */
-
   return (
     <EthContext.Provider value={{ account, connectWallet, chainId, isOwner, proposals, voters, state, error }}>
       {children}

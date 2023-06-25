@@ -13,6 +13,7 @@ import {
 
 function ProposalList() {
     const { proposals} = useContext(EthContext);
+    console.log("ProposalList - proposals : ", proposals)
   
     const addProposal = async () => {
         alert('add a proposal process')
