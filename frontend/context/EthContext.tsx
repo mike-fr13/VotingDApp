@@ -2,7 +2,7 @@
 import React, { createContext, useEffect, useState } from "react";
 import {ethers} from "ethers";
 import votingABI from "@/utils/abi";
-import { redirect } from 'next/navigation'
+import {redirect} from 'next/navigation'
 import {useToastHook} from "@/components/Toast";
 
 
@@ -20,7 +20,10 @@ export const EthProvider = ({ children }) => {
   const [error, setError] = useState("");
   const [chainId, setChainId] = useState("")
   const [isOwner, setIsOwner] = useState<boolean>(false);
+  const [proposals, setProposals] = useState([]);  
+  const [voters, setVoters] = useState([]);  
   const [state, newToast] = useToastHook();  
+
 
   const checkEthereumExists = () => {
     if (!ethereum) { 
@@ -53,7 +56,7 @@ export const EthProvider = ({ children }) => {
       } catch (err) {
         if (err.code === 4001) {
           setError('Please connect to Metamask');
-          newToast({ message: error, status: "error" });
+          newToast({ message: 'Please connect to Metamask', status: "error" });
         }
         else {
           setError(err.message);
@@ -62,6 +65,38 @@ export const EthProvider = ({ children }) => {
       }
     }
   };
+
+  const handleEvents = async ()=>  {
+   
+    //event VoterRegistered(address voterAddress); 
+    //event WorkflowStatusChange(WorkflowStatus previousStatus, WorkflowStatus newStatus);
+    //event ProposalRegistered(uint proposalId);
+    //event Voted (address voter, uint proposalId);
+
+    contract.on("VoterRegistered", (voterAddress) => {
+      console.log(voterAddress);
+      // TODO ajout d'un voter à une liste en state
+    });
+    contract.on("WorkflowStatusChange", (previousStatus,newStatus) => {
+      console.log(previousStatus,newStatus);
+      // MAJ du status de workflow
+    });
+    contract.on("ProposalRegistered", (proposalId) => {
+      console.log(proposalId);
+      // TODO ajout d'une proposal à une liste en state
+    });
+    contract.on("Voted", (voter, proposalId) => {
+      console.log(voter, proposalId);
+      // à voir ce qu'on fait  de cet evenement
+    });
+  }; 
+
+  const removeHandledEvents = async () => {
+    contract.removeAllListeners("VoterRegistered")
+    contract.removeAllListeners("WorkflowStatusChange")
+    contract.removeAllListeners("ProposalRegistered")
+    contract.removeAllListeners("Voted")
+  }
 
 
   useEffect(() => {
@@ -72,6 +107,16 @@ export const EthProvider = ({ children }) => {
       ethereum.request({ method: "eth_chainId" }).then((chainId) => {
         setChainId(chainId)
       });
+      console.log({isOwner, account})
+      handleEvents()
+      setProposals([
+        {description : "description 1", id :1},
+        {description : "description 2", id :2},
+        {description : "description 3", id :3},
+        {description : "description 4", id :4},
+        {description : "description 5", id :5},
+        {description : "description 6", id :6},
+      ])
     }
     return () => {
       if (checkEthereumExists()) {
@@ -80,6 +125,7 @@ export const EthProvider = ({ children }) => {
       if (checkEthereumExists()) {
         ethereum.removeListener("chainChanged", (chainId) => setChainId(chainId));
       }
+      removeHandledEvents();
     };
   }, []);
 
@@ -101,17 +147,17 @@ export const EthProvider = ({ children }) => {
     }
   }, [account])
 
+  /*
   useEffect(() => {
     console.log(window.location.href)
     if(isOwner && window.location.href !== "http://localhost:3000/admin"){
       redirect('/admin')
     }
   }, [isOwner])
+  */
 
-  console.log({isOwner, account})
-  
   return (
-    <EthContext.Provider value={{ account, connectWallet, chainId, error }}>
+    <EthContext.Provider value={{ account, connectWallet, chainId, isOwner, proposals, voters, state, error }}>
       {children}
     </EthContext.Provider>
   );

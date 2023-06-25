@@ -1,12 +1,15 @@
 import React from 'react'
 import MetamaskButton from '../MetamaskButton/index';
-import { Box } from '@chakra-ui/react';
+import AdminButton from '../AdminButton';
+import { Flex, Spacer } from '@chakra-ui/react';
 
 export const Header = () => {
   return (
-    <Box display="flex" alignSelf="end" justifyContent="space-between">
+    <Flex>
+        <AdminButton/>
+        <Spacer />
         <MetamaskButton/>
-    </Box>
+    </Flex>
   )
 }
 
