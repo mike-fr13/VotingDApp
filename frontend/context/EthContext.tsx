@@ -71,9 +71,29 @@ export const EthProvider = ({ children }) => {
    *  Get existing proposals
   */
   const getProposals = async () => {
-    const proposalsFilter = contract.filters.ProposalRegistered();
-    const events = await contract.queryFilter(proposalsFilter)
-    console.log ('Proposals : ', events);
+      const proposalsFilter = contract.filters.ProposalRegistered();
+      const events = await contract.queryFilter(proposalsFilter)
+      console.log ('Proposals : ', events);
+      
+      /*
+      const newProposals = await Promise.all(
+        events.map(async (event) => {
+          const proposalId = event.args.proposalId.toNumber();
+    
+          // Appel à la fonction getOneProposal pour obtenir les détails de la proposition
+          const proposal = await contract.getOneProposal(proposalId);
+    
+          // Crée un nouvel objet de proposition
+          return {
+            proposalId: proposalId,
+            proposalDescription: proposal.description,
+            nbVote: proposal.voteCount
+          };
+        })
+      );
+
+      setProposals(newProposals);
+      */
   }
 
 
@@ -81,9 +101,28 @@ export const EthProvider = ({ children }) => {
    *  Get existing voters
   */
   const getVoters = async () => {
+    /*
     const votersFilter = contract.filters.VoterRegistered();
     const events = await contract.queryFilter(votersFilter)
     console.log ('Voters : ', events);
+  
+    const newVoters = await Promise.all(
+      events.map(async (event) => {
+        const voterAddress = event.args.voterAddress;
+  
+        // Appel à la fonction getOneProposal pour obtenir les détails de la proposition
+        const voter = await contract.getVoter(voterAddress)
+  
+        // Crée un nouvel objet de proposition
+        return {
+          address: event.args.voterAddress,
+          isRegistered: voter.isRegistered,
+          hasVoted: voter.hasVoted,
+          votedProposalId:voter.voteProposalId
+        };
+      })
+    )
+      */
   }
 
   /*
