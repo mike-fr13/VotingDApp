@@ -1,7 +1,14 @@
 import { EthContext } from "@/context/EthContext";
 import { WorkflowStatus } from "@/types/ethers-contracts/Voting";
 import { PromiseOrValue } from "@/types/ethers-contracts/common";
-import { Button, Spinner, Stack, Text } from "@chakra-ui/react";
+import {
+  Button,
+  Spinner,
+  Stack,
+  Text,
+  Toast,
+  useToast,
+} from "@chakra-ui/react";
 import { Overrides, ContractTransaction } from "ethers";
 import React, { useContext, useEffect, useState } from "react";
 
@@ -11,6 +18,7 @@ export default function StatusSwitcher() {
     number | null
   >(null);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const toast = useToast();
 
   useEffect(() => {
     const getStatus = async () => {
@@ -29,21 +37,35 @@ export default function StatusSwitcher() {
 
   function handleWorkflowChange() {
     async function submitWorkflowChange(
-      contractFn: () => PromiseOrValue<ContractTransaction | void>
+      contractFn: () => PromiseOrValue<ContractTransaction>
     ) {
       try {
-        const transaction = await contractFn();
-        console.log(transaction);
+        const tx = await contractFn();
         setIsSubmitting(true);
-        contractWithSigner.on("WorkflowStatusChange", async () => {
-          const newStatus = await contractWithSigner.workflowStatus();
-          if (newStatus === currentWorkflowStatus + 1) {
-            setCurrentWorkflowStatus(newStatus);
-            setIsSubmitting(false);
-            alert("Status changed successfully");
-          }
+        const receipt = await tx.wait();
+        const newStatus = await contractWithSigner.workflowStatus();
+        if (newStatus === currentWorkflowStatus + 1) {
+          setCurrentWorkflowStatus(newStatus);
+          toast({
+            title: `Status changed successfully to ${WorkflowStatus[newStatus]}`,
+            status: "success",
+          });
+        } else {
+          toast({
+            title: "Error",
+            description: "Someting went wrong: Status not changed",
+            status: "error",
+          });
+        }
+        setIsSubmitting(false);
+      } catch (error) {
+        console.error(error.message);
+        toast({
+          title: "Error",
+          description: error.message.slice(0, 500) + "...",
+          status: "error",
         });
-      } catch (error) {}
+      }
     }
 
     switch (currentWorkflowStatus) {
@@ -51,16 +73,13 @@ export default function StatusSwitcher() {
         submitWorkflowChange(contractWithSigner.startProposalsRegistering);
         break;
       case WorkflowStatus.ProposalsRegistrationStarted:
-        setIsSubmitting(true);
-        contractWithSigner.endProposalsRegistering();
+        submitWorkflowChange(contractWithSigner.endProposalsRegistering);
         break;
       case WorkflowStatus.ProposalsRegistrationEnded:
-        setIsSubmitting(true);
-        contractWithSigner.startVotingSession();
+        submitWorkflowChange(contractWithSigner.startVotingSession);
         break;
       case WorkflowStatus.VotingSessionStarted:
-        setIsSubmitting(true);
-        contractWithSigner.endVotingSession();
+        submitWorkflowChange(contractWithSigner.endVotingSession);
         break;
       case WorkflowStatus.VotingSessionEnded:
         submitWorkflowChange(contractWithSigner.tallyVotes);
@@ -75,8 +94,13 @@ export default function StatusSwitcher() {
     <Stack>
       <Text>The current status is {WorkflowStatus[currentWorkflowStatus]}</Text>
       {currentWorkflowStatus !== WorkflowStatus.VotesTallied && (
-        <Button onClick={handleWorkflowChange} disabled={isSubmitting}>
-          {isSubmitting && <Spinner />}
+        <Button
+          onClick={handleWorkflowChange}
+          isLoading={isSubmitting}
+          loadingText={`Workflow change to ${
+            WorkflowStatus[currentWorkflowStatus + 1]
+          } in progress`}
+        >
           Change status to {WorkflowStatus[currentWorkflowStatus + 1]}
         </Button>
       )}
