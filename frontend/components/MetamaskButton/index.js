@@ -7,7 +7,7 @@ import { getChainName } from '@/utils/chainUtils';
 
 export const MetamaskButton = () => {
   const { account,connectWallet,chainId,error } = useContext(EthContext);
-  console.log(error);
+  console.log('MetamaskButton - error : ', error);
 
   return (
     <Box

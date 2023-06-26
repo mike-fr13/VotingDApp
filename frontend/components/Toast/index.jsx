@@ -6,7 +6,7 @@ export function useToastHook() {
   const toast = useToast();
 
   useEffect(() => {
-    if (state) {
+    if (state && state.message && state.message.trim() !== "") {
       const { message, status } = state;
 
       toast({

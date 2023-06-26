@@ -3,18 +3,18 @@ import React from 'react';
 import Header from '@/components/Header';
 import Main from '@/components/Main';
 import Footer from '@/components/Footer';
-import { Box } from "@chakra-ui/react";
+import { Box,Card,  Center,Container } from "@chakra-ui/react";
 
 export default function Home() {
   return (
-    <Box minHeight="100vh" w='80%' p='5' display="flex" flexDirection="column">
-      <Header />
-      <Box flex="100%" p='5'>
-        <Main />
-      </Box>
-      <Box>
+      <Card minHeight="100vh" w='80%' p='5' display="flex" flexDirection="column">
+        <Header/>
+        <Center>
+          <Container maxW='100%' centerContent>
+            <Main />
+          </Container>
+        </Center>
         <Footer />
-      </Box>
-    </Box>
+      </Card>
   );
 }
