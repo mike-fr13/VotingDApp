@@ -44,13 +44,8 @@ export function getProposals(account, contract) {
   
     return proposals;
   }
-    
-  export function addProposal(account, contract, description) {
-    console.log ('addProposal - ',description)
-    if (contract && account && description) {
-      contract.connect(account).addProposal(description);
-    }
-  }
+
+  
   
   
   

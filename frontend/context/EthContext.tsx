@@ -12,6 +12,7 @@ const { ethereum } = (typeof window !== "undefined" ? window : {}) as { ethereum
 const ethereumWindow = (window as unknown as any).ethereum as import('ethers').providers.ExternalProvider;
 const provider = new ethers.providers.Web3Provider(ethereumWindow)
 const votingContract = new ethers.Contract(votingContractAddress, votingABI, provider)
+const contractWithSigner = votingContract.connect(provider.getSigner());
 
 export const EthContext = createContext(null);
 
@@ -21,7 +22,6 @@ export const EthProvider = ({ children }) => {
   const [contract, setcontract] = useState(votingContract);  
   const [isOwner, setIsOwner] = useState<boolean>(false);
   const [proposals, setProposals] = useState([]);  
-  const [voters, setVoters] = useState([]);  
   const toast = useToast();
 
   const checkEthereumExists = () => {
@@ -40,10 +40,7 @@ export const EthProvider = ({ children }) => {
   function  getConnectedAccounts() {
     ethereum.request({ method: "eth_accounts" })
       .then((accounts) => {
-        console.log('getConnectedAccounts - account : ', account);
-        console.log('getConnectedAccounts - accounts : ', accounts);
         setAccount(accounts[0]);
-        console.log('getConnectedAccounts - account : ', account);
       })
       .catch((error) => {
         console.log ('getConnectedAccounts - error :', error.message);
@@ -81,57 +78,6 @@ export const EthProvider = ({ children }) => {
     }
   };
   
-
- 
-
-
-
-  /*
-   *  Get existing voters
-  */
-  function  getVoters() {
-    if (account && account.length !== 0) {
-      const votersFilter = contract.filters.VoterRegistered();
-      contract.queryFilter(votersFilter)
-        .then((events) => {
-          console.log('getVoters - account : ', account);
-          console.log('getVoters - Voters : ', events);
-  
-          const newVoters = Promise.all(
-            events.map((event) => {
-              const voterAddress = event.args.voterAddress;
-  
-              console.log('getVoters - voterAddress : ', voterAddress);
-              console.log(ethers.utils.getAddress(voterAddress));
-  
-              return contract.connect(account)
-                .getVoter(ethers.utils.getAddress(voterAddress))
-                .then((voter) => {
-                  return {
-                    address: event.args.voterAddress,
-                    isRegistered: voter.isRegistered,
-                    hasVoted: voter.hasVoted,
-                    votedProposalId: voter.voteProposalId,
-                  };
-                });
-            })
-          );
-  
-          console.log('getVoters - new Voters :', newVoters);
-          setVoters(newVoters as any);
-        })
-        .catch((error) => {
-          toast({
-            title: "Error",
-            description: error.message.slice(0, 500) + "...",
-            status: "error",
-          });
-          console.log('getVoters - Error:', error);
-        });
-    }
-  };
-  
-
   /*
    * Manage all contract events
   */
@@ -153,7 +99,16 @@ export const EthProvider = ({ children }) => {
       console.log('ProposalRegistered event : ', proposalId);
       //ajout d'une proposal à une liste en state
       //TODO recup l'objet proposal
-      proposals.push({proposalId : proposalId, proposalDescription: 'TODO', nbVote :'TODO'})
+
+      const newProp = contractWithSigner
+              .getOneProposal(proposalId)
+              .then((proposal) => ({
+                proposalId: proposalId,
+                proposalDescription: proposal.description,
+                nbVote: proposal.voteCount,
+              }))
+
+      proposals.push(newProp)
       setProposals(proposals)
     });
     contract.on("Voted", (voter, proposalId) => {
@@ -172,7 +127,6 @@ export const EthProvider = ({ children }) => {
   const handleAccountEvents = async ()=>  {
     ethereum.on("accountsChanged", getConnectedAccounts);
     ethereum.on('chainChanged', (chainId) => setChainId(chainId));
-
   }
 
   const removeHandledAccountEvents = async ()=>  {
@@ -216,7 +170,7 @@ export const EthProvider = ({ children }) => {
     }
   }, [account])
   return (
-    <EthContext.Provider value={{ account, connectWallet, chainId, isOwner, proposals, voters,  contract}}>
+    <EthContext.Provider value={{ account, chainId, isOwner, proposals, contract, contractWithSigner}}>
       {children}
     </EthContext.Provider>
   );

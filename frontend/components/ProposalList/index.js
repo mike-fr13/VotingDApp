@@ -10,15 +10,18 @@ import {
     Heading,
     Textarea,
     Button,
-    Text
+    Text,
+    useToast
   } from '@chakra-ui/react'
-  import {getProposals,addProposal} from '@/utils/proposal'
+  import {getProposals} from '@/utils/proposal'
 
  export const ProposalList = () => {
-    const { account, contract } = useContext(EthContext);
+    const { account, contract,contractWithSigner } = useContext(EthContext);
     const [proposals, setProposals] = useState([]);
-    const [proposalDescription, setProposalDescription] = useState('');
-
+    const [proposalInputValue, setProposalInputValue] = useState("");
+    const [isSubmittingProposal, setIsSubmittingProposal] = useState(false);
+    const toast = useToast();
+    
     useEffect(() => {
         const fetchProposals = async () => {
           if (account && account.length !== 0) {
@@ -29,11 +32,39 @@ import {
         fetchProposals();
     }, [account]);
 
-    const voteForProposal = async () => {
-        alert('vote for a proposal')
+    const voteForProposal = async (account, contract, proposalId) => {
+        alert('vote for a proposal ', account, ' ', contract, ' ',proposalId)
     }
 
-    console.log ('ProposalList - proposals : ', proposals)
+    async function handleAddProposal() {
+        console.log(proposalInputValue);
+        try {
+          const tx = await contractWithSigner.addProposal(proposalInputValue);
+          setIsSubmittingProposal(true);
+          const receipt = await tx.wait();
+          if (receipt.status === 1) {
+            toast({
+              title: `Proposal ${proposalInputValue} registered successfully`,
+              status: "success",
+            });
+          } else {
+            toast({
+              title: "Error",
+              description: "Someting went wrong: Proposal not registered",
+              status: "error",
+            });
+          }
+          setProposalInputValue("");
+          setIsSubmittingProposal(false);
+        } catch (error) {
+          console.error(error.message);
+          toast({
+            title: "Error",
+            description: error.message.slice(0, 500) + "...",
+            status: "error",
+          });
+        }
+      }
 
     return (
     <Box p='5'>
@@ -41,9 +72,11 @@ import {
         <Box p='5'>
             <Textarea 
                 placeholder='Here is your proposal description' 
-                id="proposalDescription" 
-                onChange={(e) => setProposalDescription(e.target.value)}/>
-                <Button colorScheme='teal' variant='outline' onClick={addProposal(account,contract,proposalDescription)}>
+                value={proposalInputValue}
+                onChange={(e) => setProposalInputValue(e.target.value)}/>
+                <Button colorScheme='teal' variant='outline' 
+                    isLoading={isSubmittingProposal}
+                    onClick={handleAddProposal}>
                     Add a proposal
                 </Button>
         </Box>

@@ -6,8 +6,7 @@ import { getChainName } from '@/utils/chainUtils';
 
 
 export const MetamaskButton = () => {
-  const { account,connectWallet,chainId,error } = useContext(EthContext);
-  console.log('MetamaskButton - error : ', error);
+  const { account,connectWallet,chainId,isOwner} = useContext(EthContext);
 
   return (
     <Box
@@ -28,6 +27,14 @@ export const MetamaskButton = () => {
             {getChainName(chainId)} &nbsp; - &nbsp;
             {account && `${account.slice(0, 6)}...${account.slice(account.length - 4,account.length)}`}
             </Text>
+            {isOwner ? (
+               <Text color="black" fontSize="md" fontWeight="medium" mr="2">
+                Contract Owner
+                </Text>
+            ):(
+                <></>
+            )
+            }
         </Button>
         ) : (
             <Button
