@@ -3,6 +3,7 @@ import { WorkflowStatus } from "@/types/ethers-contracts/Voting";
 import { PromiseOrValue } from "@/types/ethers-contracts/common";
 import {
   Button,
+  Input,
   Spinner,
   Stack,
   Text,
@@ -10,14 +11,18 @@ import {
   useToast,
 } from "@chakra-ui/react";
 import { Overrides, ContractTransaction } from "ethers";
+import { redirect } from "next/navigation";
 import React, { useContext, useEffect, useState } from "react";
 
 export default function StatusSwitcher() {
-  const { contractWithSigner } = useContext(EthContext);
+  const { contractWithSigner, isOwner } = useContext(EthContext);
   const [currentWorkflowStatus, setCurrentWorkflowStatus] = useState<
     number | null
   >(null);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [addressInputValue, setAddressInputValue] = useState<string>("");
+  const [isSubmittingAddress, setIsSubmittingAddress] =
+    useState<boolean>(false);
   const toast = useToast();
 
   useEffect(() => {
@@ -33,6 +38,10 @@ export default function StatusSwitcher() {
       <Spinner />
       <Text>Chargement du status</Text>
     </Stack>;
+  }
+
+  if (!isOwner) {
+    return <Text>Only the owner can access this page</Text>;
   }
 
   function handleWorkflowChange() {
@@ -90,9 +99,60 @@ export default function StatusSwitcher() {
         console.warn("Unknown status");
     }
   }
+
+  async function handleRegisterVoter() {
+    console.log(addressInputValue);
+    try {
+      const tx = await contractWithSigner.addVoter(addressInputValue);
+      setIsSubmittingAddress(true);
+      const receipt = await tx.wait();
+      if (receipt.status === 1) {
+        toast({
+          title: `Address ${addressInputValue} registered successfully`,
+          status: "success",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: "Someting went wrong: Address not registered",
+          status: "error",
+        });
+      }
+      setAddressInputValue("");
+      setIsSubmittingAddress(false);
+    } catch (error) {
+      console.error(error.message);
+      toast({
+        title: "Error",
+        description: error.message.slice(0, 500) + "...",
+        status: "error",
+      });
+    }
+  }
+
   return (
     <Stack>
-      <Text>The current status is {WorkflowStatus[currentWorkflowStatus]}</Text>
+      <Text>
+        The current status is :{" "}
+        <strong>{WorkflowStatus[currentWorkflowStatus]}</strong>
+      </Text>
+      {currentWorkflowStatus === WorkflowStatus.RegisteringVoters && (
+        <Stack flexDir="row">
+          <Input
+            placeholder="Address"
+            value={addressInputValue}
+            onChange={(e) => setAddressInputValue(e.target.value)}
+          />
+          <Button
+            width={300}
+            variant="solid"
+            isLoading={isSubmittingAddress}
+            onClick={handleRegisterVoter}
+          >
+            Register address
+          </Button>
+        </Stack>
+      )}
       {currentWorkflowStatus !== WorkflowStatus.VotesTallied && (
         <Button
           onClick={handleWorkflowChange}
