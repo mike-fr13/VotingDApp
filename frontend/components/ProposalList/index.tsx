@@ -14,10 +14,12 @@ import {
     useToast
   } from '@chakra-ui/react'
   import {getProposals} from '@/utils/proposal'
+import { BigNumber } from 'ethers'
+import { Proposal } from '@/types/Proposal'
 
  export const ProposalList = () => {
-    const { account, contract,contractWithSigner } = useContext(EthContext);
-    const [proposals, setProposals] = useState([]);
+    const { account, contractWithSigner } = useContext(EthContext);
+    const [proposals, setProposals] = useState<Proposal[]>([]);
     const [proposalInputValue, setProposalInputValue] = useState("");
     const [isSubmittingProposal, setIsSubmittingProposal] = useState(false);
     const toast = useToast();
@@ -25,15 +27,42 @@ import {
     useEffect(() => {
         const fetchProposals = async () => {
           if (account && account.length !== 0) {
-            const proposals = await getProposals(account, contract);
+            const proposals = await getProposals(account, contractWithSigner);
             setProposals(proposals);
           }
         };
         fetchProposals();
     }, [account]);
 
-    const voteForProposal = async (account, contract, proposalId) => {
-        alert('vote for a proposal ', account, ' ', contract, ' ',proposalId)
+    useEffect(() => {
+      contractWithSigner.on("ProposalRegistered", (proposalId) => {
+        console.log('ProposalRegistered event : ', proposalId);
+        //ajout d'une proposal à une liste en state
+        //TODO recup l'objet proposal
+
+        const newProp = contractWithSigner
+          .getOneProposal(proposalId)
+          .then((proposal) => {
+            const newProp: Proposal = {
+              proposalId: proposalId,
+              proposalDescription: proposal.description,
+              nbVote: proposal.voteCount,
+            }
+            setProposals((previousState) => [...previousState, newProp])
+
+          }) 
+        });
+        contractWithSigner.on("Voted", (voterAddress) => {
+          console.log(getProposals(account, contractWithSigner), "helloooooooooooo")
+          toast({ title: 'Vote registered successfully' , status: 'success'})
+          const proposals = getProposals(account, contractWithSigner)
+            .then ((allProposals) => { setProposals(allProposals);});
+        });
+    }, []);
+
+
+    const voteForProposal = async (proposalId: BigNumber) => {
+        contractWithSigner.setVote(proposalId)
     }
 
     async function handleAddProposal() {
@@ -88,8 +117,8 @@ import {
                 <CardHeader>
                     <Heading size='md'>Proposals List</Heading>
                 </CardHeader>
-                {proposals.map((proposal) => (
-                <CardBody>
+                {proposals.map((proposal, index) => (
+                <CardBody key={index}>
                     <Stack divider={<StackDivider />} spacing='4'>
                     <Box p='2'>
                         <Heading size='xs' textTransform='uppercase'>
@@ -100,9 +129,9 @@ import {
                             {proposal.proposalDescription}
                         </Text>
                         <Badge ml='1' fontSize='0.8em' colorScheme='green'>
-                            {proposal.nbVote.toString()}{(proposal.nbVote && proposal.nbVote > 1) ? (' votes') : (' vote')}
+                            {proposal.nbVote.toString()}{(proposal.nbVote && proposal.nbVote > BigNumber.from(1)) ? (' votes') : (' vote')}
                         </Badge>
-                        <Button colorScheme='teal' variant='outline' onClick={() => voteForProposal(account, contract, proposal.proposalId)}>
+                        <Button colorScheme='teal' variant='outline' onClick={() => voteForProposal(proposal.proposalId)}>
                             Vote
                         </Button>
                         </Box>

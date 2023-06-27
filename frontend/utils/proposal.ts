@@ -1,15 +1,17 @@
-export function getProposals(account, contract) {
+import { Proposal } from "@/types/Proposal";
+
+export function getProposals(account, contract) : Promise<Proposal[]>  {
     let proposals = [];
   
     if (account && account.length !== 0) {
       const proposalsFilter = contract.filters.ProposalRegistered();
   
       return contract
-        .queryFilter(proposalsFilter)
-        .then((events) => {
-          console.log("getProposals - events :", events);
-  
-          const promises = [];
+      .queryFilter(proposalsFilter)
+      .then((events) => {
+        console.log("getProposals - events :", events);
+        
+        const promises = [];
   
           for (let i = 0; i < events.length; i++) {
             const event = events[i];

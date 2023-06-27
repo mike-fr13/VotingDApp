@@ -9,6 +9,7 @@ import { useToast } from "@chakra-ui/react";
 
 //TODO passer en variabel envt
 const votingContractAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
+
 const { ethereum } = (typeof window !== "undefined" ? window : {}) as {
   ethereum: any;
 };
@@ -38,7 +39,6 @@ export const EthProvider = ({ children }) => {
   const [account, setAccount] = useState("");
   const [chainId, setChainId] = useState("")
   const [isOwner, setIsOwner] = useState<boolean>(false);
-  const [proposals, setProposals] = useState([]);  
   const toast = useToast();
 
   const checkEthereumExists = () => {
@@ -100,11 +100,7 @@ export const EthProvider = ({ children }) => {
   */
   const handleContractEvents = async ()=>  {
 
-    contract.on("VoterRegistered", (voterAddress) => {
-      console.log('VoterRegistered event : ',voterAddress);
-      // TODO ajout d'un voter à une liste en state
-      proposals.push({address: 'TODO', isRegistered: false, hasVoted: false, votedProposalId:0})
-    });
+   
     /*
     contract.on("WorkflowStatusChange", (previousStatus,newStatus) => {
       console.log('WorkflowStatusChange event : ',previousStatus,newStatus);
@@ -112,22 +108,7 @@ export const EthProvider = ({ children }) => {
       setWorkflowStatus(newStatus);
     });
     */
-    contract.on("ProposalRegistered", (proposalId) => {
-      console.log('ProposalRegistered event : ', proposalId);
-      //ajout d'une proposal à une liste en state
-      //TODO recup l'objet proposal
-
-      const newProp = contractWithSigner
-              .getOneProposal(proposalId)
-              .then((proposal) => ({
-                proposalId: proposalId,
-                proposalDescription: proposal.description,
-                nbVote: proposal.voteCount,
-              }))
-
-      proposals.push(newProp)
-      setProposals(proposals)
-    });
+    
     contract.on("Voted", (voter, proposalId) => {
       console.log('Voted event : ', voter, proposalId);
       // à voir ce qu'on fait  de cet evenement
