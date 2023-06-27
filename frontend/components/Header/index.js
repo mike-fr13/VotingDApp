@@ -1,3 +1,4 @@
+'use client'
 import React from 'react'
 import MetamaskButton from '../MetamaskButton/index';
 import AdminButton from '../AdminButton';

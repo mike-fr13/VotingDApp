@@ -1,3 +1,4 @@
+'use client'
 import React, { useContext } from 'react';
 import { EthContext } from '@/context/EthContext';
 import { Button } from '@chakra-ui/react';

@@ -170,7 +170,7 @@ export const EthProvider = ({ children }) => {
     }
   }, [account])
   return (
-    <EthContext.Provider value={{ account, chainId, isOwner, proposals, contract, contractWithSigner}}>
+    <EthContext.Provider value={{ account, chainId, connectWallet, isOwner, proposals, contract, contractWithSigner}}>
       {children}
     </EthContext.Provider>
   );
