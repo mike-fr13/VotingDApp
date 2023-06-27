@@ -5,6 +5,7 @@ import votingABI from "@/utils/abi";
 import { redirect } from "next/navigation";
 import { Voting } from "@/types/ethers-contracts";
 import { useToast } from "@chakra-ui/react";
+import { Voter } from '@/types/Voter'
 
 
 //TODO passer en variabel envt
@@ -30,6 +31,7 @@ type EthContextType = {
   connectWallet: () => void;
   chainId: string;
   isOwner: boolean;
+  isVoter : boolean;
   contractWithSigner: Voting;
 };
 
@@ -39,6 +41,7 @@ export const EthProvider = ({ children }) => {
   const [account, setAccount] = useState("");
   const [chainId, setChainId] = useState("")
   const [isOwner, setIsOwner] = useState<boolean>(false);
+  const [isVoter, setIsVoter] = useState<boolean>(false);
   const toast = useToast();
 
   const checkEthereumExists = () => {
@@ -95,26 +98,6 @@ export const EthProvider = ({ children }) => {
     }
   };
   
-  /*
-   * Manage all contract events
-  */
-  const handleContractEvents = async ()=>  {
-
-   
-    /*
-    contract.on("WorkflowStatusChange", (previousStatus,newStatus) => {
-      console.log('WorkflowStatusChange event : ',previousStatus,newStatus);
-      // MAJ du status de workflow
-      setWorkflowStatus(newStatus);
-    });
-    */
-    
-    contract.on("Voted", (voter, proposalId) => {
-      console.log('Voted event : ', voter, proposalId);
-      // à voir ce qu'on fait  de cet evenement
-    });
-  }; 
-
   const removeHandledContractEvents = async () => {
     contract.removeAllListeners("VoterRegistered")
     contract.removeAllListeners("WorkflowStatusChange")
@@ -138,7 +121,6 @@ export const EthProvider = ({ children }) => {
       getConnectedAccounts();
       ethereum.request({ method: "eth_chainId" }).then((chainId) => {setChainId(chainId)});
       handleAccountEvents()
-      handleContractEvents()
       console.log('useLayoutEffect[] - {isOwner, account} : ' , {isOwner, account})
     }
     return () => {
@@ -157,6 +139,12 @@ export const EthProvider = ({ children }) => {
       return ownerAddress;
     };
 
+    const checkIsVoterRegistered = async () => {
+      console.log(contractWithSigner, "contract");
+      const myVoter : Voter = await contractWithSigner.getVoter(account);
+      return(myVoter.isRegistered)
+    };
+
     if (account) {
       getOwner().then((ownerAddress) => {
         console.log('useEffect[account] - ownerAddress : ', ownerAddress )
@@ -165,11 +153,23 @@ export const EthProvider = ({ children }) => {
         } else {
           setIsOwner(false);
         }
-      });
+      })
+
+      checkIsVoterRegistered()
+        .then((isVoterRegistered) => {
+          setIsVoter(isVoterRegistered)
+          console.log('useEffect[account] - isVoterRegistered : ', isVoterRegistered )
+        })
+        .catch((error) => {
+          setIsVoter(false)
+          console.log('useEffect[account] - isVoterRegistered - error: ')
+        })
     }
   }, [account])
+
+  
   return (
-    <EthContext.Provider value={{ account, chainId, connectWallet, isOwner, contractWithSigner}}>
+    <EthContext.Provider value={{ account, chainId, connectWallet, isOwner, isVoter, contractWithSigner}}>
       {children}
     </EthContext.Provider>
   );
