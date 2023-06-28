@@ -6,6 +6,8 @@ async function main() {
     const account4 = '0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65'
     const account5= '0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc'
     const account6 = '0x976EA74026E726554dB657fA54763abd0C3a0aa9'
+
+    const loremIpsum = "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum."
     
     const votingABI = require('./abi.js');
     const { ethers } = require("hardhat");
@@ -29,15 +31,15 @@ async function main() {
     await Contract.startProposalsRegistering();
 
     console.log('addProposal 1')
-    await Contract.connect(account2Signer).addProposal("ma premiere proposition");
+    await Contract.connect(account2Signer).addProposal("ma premiere proposition : "+loremIpsum);
     console.log('addProposal 2')
-    await Contract.connect(account2Signer).addProposal("ma seconde proposition");
+    await Contract.connect(account2Signer).addProposal("ma seconde proposition : "+loremIpsum);
     console.log('addProposal 3')
-    await Contract.connect(account2Signer).addProposal("ma troisieme proposition");
+    await Contract.connect(account2Signer).addProposal("ma troisieme proposition : "+loremIpsum);
     console.log('addProposal 4')
-    await Contract.connect(account2Signer).addProposal("ma quatrième proposition");
+    await Contract.connect(account2Signer).addProposal("ma quatrième proposition : "+loremIpsum);
     console.log('addProposal 5')
-    await Contract.connect(account2Signer).addProposal("ma cinquième proposition");
+    await Contract.connect(account2Signer).addProposal("ma cinquième proposition : "+loremIpsum);
 
 
 }
