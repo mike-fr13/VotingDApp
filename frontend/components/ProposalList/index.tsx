@@ -22,9 +22,10 @@ import { Proposal } from "@/types/Proposal";
 
 export const ProposalList = () => {
   const { account, isVoter, contractWithSigner } = useContext(EthContext);
-  const [proposals, setProposals] = useState<Proposal[]>([]);
+    const [proposals, setProposals] = useState<Proposal[]>([]);
   const [proposalInputValue, setProposalInputValue] = useState("");
   const [isSubmittingProposal, setIsSubmittingProposal] = useState(false);
+  const [isSubmittingVote, setIsSubmittingVote] = useState(false);
   const toast = useToast();
 
   useEffect(() => {
@@ -76,8 +77,10 @@ export const ProposalList = () => {
 
   const voteForProposal = async (proposalId: BigNumber) => {
     if (isVoter) {
+      setIsSubmittingVote(true);
       console.log("voteForProposal: ", proposalId);
-      contractWithSigner.setVote(proposalId);
+      contractWithSigner.setVote(proposalId)
+        .finally(() => {setIsSubmittingVote(false)});
     }
   };
 
@@ -160,6 +163,7 @@ export const ProposalList = () => {
                         colorScheme="teal"
                         variant="outline"
                         onClick={() => voteForProposal(proposal.proposalId)}
+                        isLoading={isSubmittingVote}
                       >
                         Vote
                       </Button>
