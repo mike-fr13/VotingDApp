@@ -6,11 +6,13 @@ import { Voting } from "@/types/ethers-contracts";
 import { useToast } from "@chakra-ui/react";
 import { Voter } from "@/types/Voter";
 
+
 const votingContractAddress = process.env.NEXT_PUBLIC_VOTING_CONTRACT_ADDRESS;
 console.log('process.env.NEXT_PUBLIC_VOTING_CONTRACT_ADDRESS : ',votingContractAddress);
 
 
 type EthContextType = {
+  provider: any;
   account: string;
   connectWallet: () => void;
   setIsVoter: (isVoter: boolean) => void;
@@ -165,6 +167,7 @@ export const EthProvider = ({ children }) => {
   return (
     <EthContext.Provider
       value={{
+        provider,
         account,
         chainId,
         connectWallet,

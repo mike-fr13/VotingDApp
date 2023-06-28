@@ -18,9 +18,10 @@ export const EventProvider = ({ children }) => {
   const [votes, setVotes] = useState<
     { voter: string; proposalId: BigNumber }[]
   >([]);
-  const { account, contractWithSigner, setIsVoter, isVoter } =
+  const { provider, account, contractWithSigner, setIsVoter, isVoter } =
     useContext(EthContext);
-
+    
+ /*
   const { ethereum } = (typeof window !== "undefined" ? window : {}) as {
     ethereum: any;
   };
@@ -30,6 +31,7 @@ export const EventProvider = ({ children }) => {
         .ethereum as import("ethers").providers.ExternalProvider)
     : null;
   const provider = new ethers.providers.Web3Provider(ethereumWindow);
+  */
 
   const contract = new ethers.Contract(
     votingContractAddress,
