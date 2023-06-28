@@ -13,6 +13,7 @@ console.log('process.env.NEXT_PUBLIC_VOTING_CONTRACT_ADDRESS : ',votingContractA
 type EthContextType = {
   account: string;
   connectWallet: () => void;
+  setIsVoter: (isVoter: boolean) => void;
   chainId: string;
   isOwner: boolean;
   isVoter: boolean;
@@ -146,12 +147,6 @@ export const EthProvider = ({ children }) => {
       return ownerAddress;
     };
 
-    const checkIsVoterRegistered = async () => {
-      console.log(contractWithSigner, "contract");
-      const myVoter: Voter = await contractWithSigner.getVoter(account);
-      return myVoter.isRegistered;
-    };
-
     if (account) {
       getOwner().then((ownerAddress) => {
         console.log("useEffect[account] - ownerAddress : ", ownerAddress);
@@ -164,19 +159,6 @@ export const EthProvider = ({ children }) => {
           setIsOwner(false);
         }
       });
-
-      checkIsVoterRegistered()
-        .then((isVoterRegistered) => {
-          setIsVoter(isVoterRegistered);
-          console.log(
-            "useEffect[account] - isVoterRegistered : ",
-            isVoterRegistered
-          );
-        })
-        .catch((error) => {
-          setIsVoter(false);
-          console.log("useEffect[account] - isVoterRegistered - error: ");
-        });
     }
   }, [account]);
 
@@ -187,6 +169,7 @@ export const EthProvider = ({ children }) => {
         chainId,
         connectWallet,
         isOwner,
+        setIsVoter,
         isVoter,
         contractWithSigner,
       }}

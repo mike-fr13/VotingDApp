@@ -1,6 +1,7 @@
-'use client'
-import { EthProvider } from "@/context/EthContext"
-import { ChakraProvider } from "@chakra-ui/react"
+"use client";
+import { EthProvider } from "@/context/EthContext";
+import { EventProvider } from "@/context/EventContext";
+import { ChakraProvider } from "@chakra-ui/react";
 
 export default function RootLayout({ children }) {
   return (
@@ -8,10 +9,10 @@ export default function RootLayout({ children }) {
       <body>
         <ChakraProvider>
           <EthProvider>
-              {children}
-            </EthProvider>
+            <EventProvider>{children}</EventProvider>
+          </EthProvider>
         </ChakraProvider>
       </body>
     </html>
-  )
+  );
 }
