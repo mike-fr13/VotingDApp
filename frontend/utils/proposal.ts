@@ -20,6 +20,7 @@ export function getProposals(account, contract) : Promise<Proposal[]>  {
             console.log("getProposals - proposalId :", proposalId);
             console.log("getProposals - account :", account);
   
+            console.log("getProposals - getOneProposal :", proposalId);
             const promise = contract
               .connect(account)
               .getOneProposal(proposalId)

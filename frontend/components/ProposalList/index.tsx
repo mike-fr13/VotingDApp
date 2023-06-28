@@ -40,8 +40,6 @@ import { Proposal } from '@/types/Proposal'
       if (isVoter) {
         contractWithSigner.on("ProposalRegistered", (proposalId) => {
           console.log('ProposalRegistered event : ', proposalId);
-          //ajout d'une proposal à une liste en state
-          //TODO recup l'objet proposal
 
           const newProp = contractWithSigner
             .getOneProposal(proposalId)
@@ -71,6 +69,7 @@ import { Proposal } from '@/types/Proposal'
 
     const voteForProposal = async (proposalId: BigNumber) => {
       if (isVoter) {
+        console.log('voteForProposal: ', proposalId);
         contractWithSigner.setVote(proposalId)
       }
     }
@@ -109,9 +108,9 @@ import { Proposal } from '@/types/Proposal'
 
     return (
     (isVoter)? (
-      <Box p='5'>
+      <Box p='5' boxSize="4xl">
           <Heading size='xl'>Proposals Registration</Heading>
-          <Box p='5'>
+          <Box p='5' w='100%'>
               <Textarea 
                   placeholder='Here is your proposal description' 
                   value={proposalInputValue}
@@ -122,23 +121,23 @@ import { Proposal } from '@/types/Proposal'
                       Add a proposal
                   </Button>
           </Box>
-          <Box>
+          <Box w='100%'>
               {proposals && proposals.length === 0 ? (
                   <Text fontSize='xl'>There is no proposal yet</Text>
               ) : (
-                  <Card>
+                  <Card w='100%'>
                   <CardHeader>
                       <Heading size='md'>Proposals List</Heading>
                   </CardHeader>
                   {proposals.map((proposal, index) => (
                   <CardBody key={index}>
                       <Stack divider={<StackDivider />} spacing='4'>
-                      <Box p='2'>
+                      <Box p='2' border='1px' borderColor='gray.200' w='100%'>
                           <Heading size='xs' textTransform='uppercase'>
                           Proposition n° {proposal.proposalId.toString()}
                           </Heading>
-                          <Box display="flex">
-                          <Text pt='2' fontSize='sm' id='propDescr'>
+                          <Box display="flex" justifyContent='space-between'>
+                          <Text w='80%' pt='2' fontSize='sm' id='propDescr'>
                               {proposal.proposalDescription}
                           </Text>
                           <Badge ml='1' fontSize='0.8em' colorScheme='green'>
