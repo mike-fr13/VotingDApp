@@ -20,6 +20,7 @@ type EthContextType = {
   isOwner: boolean;
   isVoter: boolean;
   contractWithSigner: Voting;
+  contract: Voting;
 };
 
 export const EthContext = createContext<EthContextType>(null);
@@ -175,6 +176,7 @@ export const EthProvider = ({ children }) => {
         setIsVoter,
         isVoter,
         contractWithSigner,
+        contract
       }}
     >
       {children}

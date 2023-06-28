@@ -1,13 +1,10 @@
 "use client";
 import { Proposal } from "@/types/Proposal";
-import { Voter } from "@/types/Voter";
-import { Voting } from "@/types/ethers-contracts";
-import votingABI from "@/utils/abi";
 import { BigNumber, ethers } from "ethers";
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { EthContext } from "./EthContext";
 
-const votingContractAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
+
 type EventContextType = {};
 
 export const EventContext = createContext<EventContextType>(null);
@@ -18,26 +15,8 @@ export const EventProvider = ({ children }) => {
   const [votes, setVotes] = useState<
     { voter: string; proposalId: BigNumber }[]
   >([]);
-  const { provider, account, contractWithSigner, setIsVoter, isVoter } =
+  const { provider, account, contract, contractWithSigner, setIsVoter, isVoter } =
     useContext(EthContext);
-    
- /*
-  const { ethereum } = (typeof window !== "undefined" ? window : {}) as {
-    ethereum: any;
-  };
-  if (!ethereum) return null;
-  const ethereumWindow = !!window
-    ? ((window as unknown as any)
-        .ethereum as import("ethers").providers.ExternalProvider)
-    : null;
-  const provider = new ethers.providers.Web3Provider(ethereumWindow);
-  */
-
-  const contract = new ethers.Contract(
-    votingContractAddress,
-    votingABI,
-    provider
-  ) as Voting;
 
   useEffect(() => {
     const isVoter = votersAddress.find(
