@@ -104,6 +104,7 @@ contract Voting is Ownable {
     // ::::::::::::: VOTE ::::::::::::: //
     /// @notice Vote for the proposal with given id
     /// @param _id Id of the proposal to vote for
+    /// @dev to fix the tallyVote DOS breach if too many proposals are submitted, we evaluate and maintain the winning proposal on each setVote request
     function setVote( uint _id) external onlyVoters {
         require(workflowStatus == WorkflowStatus.VotingSessionStarted, 'Voting session havent started yet');
         require(voters[msg.sender].hasVoted != true, 'You have already voted');
@@ -158,6 +159,7 @@ contract Voting is Ownable {
 
 
     /// @notice Tally vote function for the owner
+    /// @dev this function is now useless and we could delete it and only keep the endVotingSession() to tally the vote
    function tallyVotes() external onlyOwner {
        require(workflowStatus == WorkflowStatus.VotingSessionEnded, "Current status is not voting session ended");
        workflowStatus = WorkflowStatus.VotesTallied;
