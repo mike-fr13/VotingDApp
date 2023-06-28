@@ -2,13 +2,13 @@
 import React, { createContext, useEffect, useState } from "react";
 import { Contract, ContractInterface, ethers } from "ethers";
 import votingABI from "@/utils/abi";
-import { redirect } from "next/navigation";
 import { Voting } from "@/types/ethers-contracts";
 import { useToast } from "@chakra-ui/react";
 import { Voter } from "@/types/Voter";
 
-//TODO passer en variabel envt
-const votingContractAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
+const votingContractAddress = process.env.NEXT_PUBLIC_VOTING_CONTRACT_ADDRESS;
+console.log('process.env.NEXT_PUBLIC_VOTING_CONTRACT_ADDRESS : ',votingContractAddress);
+
 
 type EthContextType = {
   account: string;
@@ -38,6 +38,7 @@ export const EthProvider = ({ children }) => {
     : null;
   const provider = new ethers.providers.Web3Provider(ethereumWindow);
 
+  console.log('EthProvider  - process.env.VOTING_CONTRACT_ADDRESS : ',votingContractAddress);
   const contract = new ethers.Contract(
     votingContractAddress,
     votingABI,
