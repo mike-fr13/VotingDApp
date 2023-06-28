@@ -22,9 +22,9 @@ async function main() {
     await Contract.addVoter(account2);
     console.log('addVoter  - account3')
     await Contract.addVoter(account3);
-    console.log('addVoter  - account3')
+    console.log('addVoter  - account4')
     await Contract.addVoter(account4);
-    console.log('addVoter  - account3')
+    console.log('addVoter  - account5')
     await Contract.addVoter(account5);
 
     console.log('startProposalsRegistering')
