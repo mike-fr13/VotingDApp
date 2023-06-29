@@ -16,20 +16,13 @@ import { redirect } from "next/navigation";
 import React, { useContext, useEffect, useState } from "react";
 
 export default function StatusSwitcher() {
-  const { contractWithSigner, isOwner } = useContext(EthContext);
   const { currentWorkflowStatus } = useContext(EventContext);
+  const { contractWithSigner, isOwner } = useContext(EthContext);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [addressInputValue, setAddressInputValue] = useState<string>("");
   const [isSubmittingAddress, setIsSubmittingAddress] =
     useState<boolean>(false);
   const toast = useToast();
-
-  if (!currentWorkflowStatus) {
-    <Stack>
-      <Spinner />
-      <Text>Chargement du status</Text>
-    </Stack>;
-  }
 
   if (!isOwner) {
     return <Text>Only the owner can access this page</Text>;
@@ -90,55 +83,8 @@ export default function StatusSwitcher() {
     }
   }
 
-  async function handleRegisterVoter() {
-    console.log(addressInputValue);
-    try {
-      const tx = await contractWithSigner.addVoter(addressInputValue);
-      setIsSubmittingAddress(true);
-      const receipt = await tx.wait();
-      if (receipt.status === 1) {
-        toast({
-          title: `Address ${addressInputValue} registered successfully`,
-          status: "success",
-        });
-      } else {
-        toast({
-          title: "Error",
-          description: "Someting went wrong: Address not registered",
-          status: "error",
-        });
-      }
-      setAddressInputValue("");
-      setIsSubmittingAddress(false);
-    } catch (error) {
-      console.error(error.message);
-      toast({
-        title: "Error",
-        description: error.message.slice(0, 500) + "...",
-        status: "error",
-      });
-    }
-  }
-
   return (
     <Stack>
-      {currentWorkflowStatus === WorkflowStatus.RegisteringVoters && (
-        <Stack flexDir="row">
-          <Input
-            placeholder="Address"
-            value={addressInputValue}
-            onChange={(e) => setAddressInputValue(e.target.value)}
-          />
-          <Button
-            width={300}
-            variant="solid"
-            isLoading={isSubmittingAddress}
-            onClick={handleRegisterVoter}
-          >
-            Register address
-          </Button>
-        </Stack>
-      )}
       <Text>
         The current status is :{" "}
         <strong>{WorkflowStatus[currentWorkflowStatus]}</strong>

@@ -1,9 +1,63 @@
+import { EthContext } from "@/context/EthContext";
 import { EventContext } from "@/context/EventContext";
-import { List, ListItem, Stack, Text } from "@chakra-ui/react";
-import React, { useContext } from "react";
+import { WorkflowStatus } from "@/types/ethers-contracts/Voting";
+import {
+  Button,
+  Input,
+  List,
+  ListItem,
+  Spinner,
+  Stack,
+  Text,
+  useToast,
+} from "@chakra-ui/react";
+import React, { useContext, useState } from "react";
 
 export default function VotersList() {
-  const { votersAddress } = useContext(EventContext);
+  const { votersAddress, currentWorkflowStatus } = useContext(EventContext);
+  const { contractWithSigner } = useContext(EthContext);
+  const [addressInputValue, setAddressInputValue] = useState<string>("");
+  const [isSubmittingAddress, setIsSubmittingAddress] =
+    useState<boolean>(false);
+  const toast = useToast();
+
+  if (!currentWorkflowStatus) {
+    <Stack>
+      <Spinner />
+      <Text>Chargement du status</Text>
+    </Stack>;
+  }
+
+  async function handleRegisterVoter() {
+    console.log(addressInputValue);
+    try {
+      const tx = await contractWithSigner.addVoter(addressInputValue);
+      setIsSubmittingAddress(true);
+      const receipt = await tx.wait();
+      if (receipt.status === 1) {
+        toast({
+          title: `Address ${addressInputValue} registered successfully`,
+          status: "success",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: "Someting went wrong: Address not registered",
+          status: "error",
+        });
+      }
+      setAddressInputValue("");
+      setIsSubmittingAddress(false);
+    } catch (error) {
+      console.error(error.message);
+      toast({
+        title: "Error",
+        description: error.message.slice(0, 500) + "...",
+        status: "error",
+      });
+    }
+  }
+
   return (
     <Stack
       sx={{
@@ -16,13 +70,32 @@ export default function VotersList() {
       }}
     >
       <Text fontSize={"1xl"} fontWeight={"bold"}>
-        Address currently Registered
+        {votersAddress.length === 0
+          ? "Add a register address"
+          : "Address currently Registered"}
       </Text>
       <List>
         {votersAddress.map((voterAddress) => (
           <ListItem>{voterAddress}</ListItem>
         ))}
       </List>
+      {currentWorkflowStatus === WorkflowStatus.RegisteringVoters && (
+        <Stack flexDir="row">
+          <Input
+            placeholder="Address"
+            value={addressInputValue}
+            onChange={(e) => setAddressInputValue(e.target.value)}
+          />
+          <Button
+            width={300}
+            variant="solid"
+            isLoading={isSubmittingAddress}
+            onClick={handleRegisterVoter}
+          >
+            Register address
+          </Button>
+        </Stack>
+      )}
     </Stack>
   );
 }
