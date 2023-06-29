@@ -5,7 +5,12 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import { EthContext } from "./EthContext";
 import { WorkflowStatus } from "@/types/ethers-contracts/Voting";
 
-type EventContextType = {};
+type EventContextType = {
+  proposals: Proposal[];
+  votes: { voter: string; proposalId: BigNumber }[];
+  currentWorkflowStatus: WorkflowStatus;
+  votersAddress: string[];
+};
 
 export const EventContext = createContext<EventContextType>(null);
 
@@ -135,6 +140,7 @@ export const EventProvider = ({ children }) => {
         proposals,
         votes,
         currentWorkflowStatus,
+        votersAddress,
       }}
     >
       {children}

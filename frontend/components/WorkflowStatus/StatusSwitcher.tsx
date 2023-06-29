@@ -1,4 +1,5 @@
 import { EthContext } from "@/context/EthContext";
+import { EventContext } from "@/context/EventContext";
 import { WorkflowStatus } from "@/types/ethers-contracts/Voting";
 import { PromiseOrValue } from "@/types/ethers-contracts/common";
 import {
@@ -16,22 +17,12 @@ import React, { useContext, useEffect, useState } from "react";
 
 export default function StatusSwitcher() {
   const { contractWithSigner, isOwner } = useContext(EthContext);
-  const [currentWorkflowStatus, setCurrentWorkflowStatus] = useState<
-    number | null
-  >(null);
+  const { currentWorkflowStatus } = useContext(EventContext);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [addressInputValue, setAddressInputValue] = useState<string>("");
   const [isSubmittingAddress, setIsSubmittingAddress] =
     useState<boolean>(false);
   const toast = useToast();
-
-  useEffect(() => {
-    const getStatus = async () => {
-      const status = await contractWithSigner.workflowStatus();
-      setCurrentWorkflowStatus(status);
-    };
-    getStatus();
-  }, []);
 
   if (!currentWorkflowStatus) {
     <Stack>
@@ -54,7 +45,6 @@ export default function StatusSwitcher() {
         const receipt = await tx.wait();
         const newStatus = await contractWithSigner.workflowStatus();
         if (newStatus === currentWorkflowStatus + 1) {
-          setCurrentWorkflowStatus(newStatus);
           toast({
             title: `Status changed successfully to ${WorkflowStatus[newStatus]}`,
             status: "success",
@@ -132,10 +122,6 @@ export default function StatusSwitcher() {
 
   return (
     <Stack>
-      <Text>
-        The current status is :{" "}
-        <strong>{WorkflowStatus[currentWorkflowStatus]}</strong>
-      </Text>
       {currentWorkflowStatus === WorkflowStatus.RegisteringVoters && (
         <Stack flexDir="row">
           <Input
@@ -153,6 +139,10 @@ export default function StatusSwitcher() {
           </Button>
         </Stack>
       )}
+      <Text>
+        The current status is :{" "}
+        <strong>{WorkflowStatus[currentWorkflowStatus]}</strong>
+      </Text>
       {currentWorkflowStatus !== WorkflowStatus.VotesTallied && (
         <Button
           onClick={handleWorkflowChange}

@@ -8,15 +8,33 @@ import { useContext } from "react";
 import StatusSwitcher from "@/components/WorkflowStatus/StatusSwitcher";
 import { Box, Stack } from "@chakra-ui/react";
 import { EventContext, useEvents } from "@/context/EventContext";
+import VotersList from "@/components/VoterList";
 
 const admin = () => {
   const { isOwner } = useContext(EthContext);
   const {} = useContext(EventContext);
   return isOwner ? (
-    <Box minHeight="100vh" w="80%" p="5" display="flex" flexDirection="column">
+    <Box
+      minHeight="100vh"
+      w="100%"
+      p="5"
+      display="flex"
+      flexDirection="column"
+      alignItems={"center"}
+    >
       <Header />
-      <Stack>
-        <StatusSwitcher />
+      <Stack
+        flexDirection={"column"}
+        justifyContent={"center"}
+        align={"center"}
+        gap={10}
+        m={20}
+        maxWidth={650}
+      >
+        <VotersList />
+        <Stack>
+          <StatusSwitcher />
+        </Stack>
       </Stack>
     </Box>
   ) : (
