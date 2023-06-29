@@ -15,6 +15,7 @@ export default function Home() {
       <Card minHeight="100vh" w='90%' p='5' display="flex" flexDirection="column">
         <Header/>
         <Center>
+          <WorkflowStep/>
           <Container w='100%' centerContent>
             <ProposalList/>
           </Container>
