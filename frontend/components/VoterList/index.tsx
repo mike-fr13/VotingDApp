@@ -78,8 +78,8 @@ export default function VotersList() {
           : "Address currently Registered"}
       </Text>
       <List>
-        {votersAddress.map((voterAddress) => (
-          <Stack display="flex" flexDirection="row">
+        {votersAddress.map((voterAddress, index) => (
+          <Stack display="flex" flexDirection="row" key={index}>
           <ListIcon as={MdCheckCircle} color='green.500' />
           <ListItem>{voterAddress}</ListItem>
           </Stack>
