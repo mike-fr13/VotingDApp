@@ -27,6 +27,7 @@ export const EventProvider = ({ children }) => {
   } = useContext(EthContext);
 
   useEffect(() => {
+    if (!account) return;
     const isVoter = votersAddress.find(
       (value) =>
         ethers.utils.getAddress(value) === ethers.utils.getAddress(account)

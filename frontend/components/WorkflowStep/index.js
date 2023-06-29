@@ -1,6 +1,7 @@
 'use client'
 import { Step, StepDescription, StepIcon, StepIndicator, StepNumber, StepSeparator, StepStatus, StepTitle, Stepper, useSteps, Box } from '@chakra-ui/react'
-import React from 'react'
+import { EventContext } from '@/context/EventContext'
+import React, { useContext } from 'react'
 
 const steps = [
     { title: 'First', description: 'Register Voters' },
@@ -15,9 +16,10 @@ const steps = [
       index: 1,
       count: steps.length,
     })
+    const {currentWorkflowStatus} = useContext(EventContext);
   
     return (
-      <Stepper size="sm" index={activeStep}>
+      <Stepper size="sm" index={currentWorkflowStatus}>
         {steps.map((step, index) => (
           <Step key={index}>
             <StepIndicator>
