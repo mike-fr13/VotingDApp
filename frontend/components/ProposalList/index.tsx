@@ -113,11 +113,14 @@ export const ProposalList = () => {
 
       {/* Votes Tallied */}
       {(currentWorkflowStatus===5) && (
-      <Card w="100%" backgroundColor="green.200">
+      <Card w="100%" backgroundColor="green.200" p="5">
         <CardHeader>
-          <Heading size="md">Winnig Proposals</Heading>
+          <Heading size="md">Winning Proposal</Heading>
         </CardHeader>
         <CardBody>
+          <Heading size="xs" textTransform="uppercase">
+            Proposition n° {winningProposalId}
+          </Heading>
           <Text>
             {proposals?.[winningProposalId]?.proposalDescription}
           </Text>
@@ -139,8 +142,8 @@ export const ProposalList = () => {
                 <Stack divider={<StackDivider />} spacing="4">
                     <Box p="2" w="100%"
                       border={ currentWorkflowStatus!=5 && winningProposalId === index ? "3px" : "0px" }
-                      borderColor={ currentWorkflowStatus!=5 && winningProposalId === index ? "green.600" : "grey.200" }
-                      borderStyle={ currentWorkflowStatus!=5 && winningProposalId === index ? "dashed" : "normal" }
+                      borderColor={ (currentWorkflowStatus ===3 || currentWorkflowStatus ===4) && winningProposalId === index ? "green.600" : "grey.200" }
+                      borderStyle={ (currentWorkflowStatus ===3 || currentWorkflowStatus ===4) && winningProposalId === index ? "dashed" : "normal" }
                     >
                  
                     <Heading size="xs" textTransform="uppercase">
@@ -150,28 +153,30 @@ export const ProposalList = () => {
                       <Text w="80%" pt="2" fontSize="sm" id="propDescr">
                         {proposal.proposalDescription}
                       </Text>
-                      <Stack display="flex" flexDirection="column" width="100px">
-                          <Badge ml="1" p="2" borderRadius="5" fontSize="0.8em" colorScheme="green">
-                            {proposal.nbVote.toString()}
-                            {proposal.nbVote && proposal.nbVote > BigNumber.from(1)
-                              ? " votes"
-                              : " vote"}
-                          </Badge>
-                          {currentWorkflowStatus!=5 && winningProposalId === index &&
-                          <Text fontSize="xs" color="green.800">
-                            Current winning proposal
-                          </Text>
-                          }
-                      </Stack>
+                      {(currentWorkflowStatus >=3 )  &&
+                        <Stack display="flex" flexDirection="column" width="100px">
+                            <Badge ml="1" p="2" borderRadius="5" fontSize="0.8em" colorScheme="green">
+                              {proposal.nbVote.toString()}
+                              {proposal.nbVote && proposal.nbVote > BigNumber.from(1)
+                                ? " votes"
+                                : " vote"}
+                            </Badge>
+                            {winningProposalId === index && currentWorkflowStatus!=5 &&
+                              <Text fontSize="xs" color="green.800">
+                                Current winning proposal
+                              </Text>
+                            }
+                        </Stack>
+                      }
                       {(currentWorkflowStatus===2) && (
-                      <Button
-                        colorScheme="teal"
-                        variant="outline"
-                        onClick={() => voteForProposal(proposal.proposalId)}
-                        isLoading={isSubmittingVote}
-                      >
-                        Vote
-                      </Button>
+                        <Button
+                          colorScheme="teal"
+                          variant="outline"
+                          onClick={() => voteForProposal(proposal.proposalId)}
+                          isLoading={isSubmittingVote}
+                        >
+                          Vote
+                        </Button>
                       )}
                     </Box>
                   </Box>

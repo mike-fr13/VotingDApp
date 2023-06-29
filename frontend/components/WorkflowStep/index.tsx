@@ -16,11 +16,12 @@ import { EventContext } from "@/context/EventContext";
 import React, { useContext } from "react";
 
 export const steps = [
-  { title: "Register Voters", description: "First" },
-  { title: "Register Proposals", description: "Second" },
-  { title: "Voting Session", description: "Third" },
-  { title: "Voting Closed", description: "Fourth" },
-  { title: "Votes Tallied", description: "Five" },
+  { description: 'First',  title: 'Register Voters' },
+  { description: 'Second', title: 'Register Prop start' },
+  { description: 'Third',  title: 'Register Prop end' },
+  { description: 'Fourth', title: 'Voting Session' },
+  { description: 'Fifth',  title: 'Voting Closed' },
+  { description: 'Sixth',  title: 'Votes Tallied' },
 ];
 
 export const WorkflowStep = () => {
