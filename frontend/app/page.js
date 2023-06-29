@@ -5,6 +5,7 @@ import Head from 'next/head';
 import Footer from '@/components/Footer';
 import ProposalList from '@/components/ProposalList';
 import { Box,Card,  Center,Container } from "@chakra-ui/react";
+import WorkflowStep from '@/components/WorkflowStep';
 
 export default function Home() {
   return (
