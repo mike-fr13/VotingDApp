@@ -1,15 +1,18 @@
 import { EthContext } from "@/context/EthContext";
 import { EventContext } from "@/context/EventContext";
 import { WorkflowStatus } from "@/types/ethers-contracts/Voting";
+import {MdCheckCircle} from 'react-icons/md';
 import {
   Button,
   Input,
   List,
+  ListIcon,
   ListItem,
   Spinner,
   Stack,
   Text,
   useToast,
+  Box
 } from "@chakra-ui/react";
 import React, { useContext, useState } from "react";
 
@@ -76,7 +79,10 @@ export default function VotersList() {
       </Text>
       <List>
         {votersAddress.map((voterAddress) => (
+          <Stack display="flex" flexDirection="row">
+          <ListIcon as={MdCheckCircle} color='green.500' />
           <ListItem>{voterAddress}</ListItem>
+          </Stack>
         ))}
       </List>
       {currentWorkflowStatus === WorkflowStatus.RegisteringVoters && (
