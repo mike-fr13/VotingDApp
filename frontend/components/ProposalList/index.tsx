@@ -2,6 +2,7 @@
 import React from "react";
 import { useState, useContext, useEffect } from "react";
 import { EthContext } from "@/context/EthContext";
+import { EventContext } from "@/context/EventContext";
 import {
   Stack,
   StackDivider,
@@ -19,7 +20,6 @@ import {
 import { getProposals } from "@/utils/proposal";
 import { BigNumber } from "ethers";
 import { Proposal } from "@/types/Proposal";
-import { EventContext } from "@/context/EventContext";
 import { WorkflowStatus } from "@/types/ethers-contracts/Voting";
 
 export const ProposalList = () => {
