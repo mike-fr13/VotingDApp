@@ -3,7 +3,7 @@ import { Proposal } from "@/types/Proposal";
 import { BigNumber, ethers } from "ethers";
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { EthContext } from "./EthContext";
-
+import { WorkflowStatus } from "@/types/ethers-contracts/Voting";
 
 type EventContextType = {};
 
@@ -15,8 +15,16 @@ export const EventProvider = ({ children }) => {
   const [votes, setVotes] = useState<
     { voter: string; proposalId: BigNumber }[]
   >([]);
-  const { provider, account, contract, contractWithSigner, setIsVoter, isVoter } =
-    useContext(EthContext);
+  const [currentWorkflowStatus, setCurrentWorkflowStatus] =
+    useState<WorkflowStatus>();
+  const {
+    provider,
+    account,
+    contract,
+    contractWithSigner,
+    setIsVoter,
+    isVoter,
+  } = useContext(EthContext);
 
   useEffect(() => {
     const isVoter = votersAddress.find(
@@ -105,14 +113,27 @@ export const EventProvider = ({ children }) => {
     };
   }, []);
 
-  console.log(votes, "votes");
-  console.log(proposals, "proposals");
+  useEffect(() => {
+    contractWithSigner
+      .workflowStatus()
+      .then((status) => setCurrentWorkflowStatus(status));
+
+    contract.on("WorkflowStatusChange", (_, newStatus) => {
+      console.log("WorkflowStatusChange", newStatus);
+      setCurrentWorkflowStatus(newStatus);
+    });
+
+    () => {
+      contract.removeAllListeners("WorkflowStatusChange");
+    };
+  }, []);
 
   return (
     <EventContext.Provider
       value={{
         proposals,
         votes,
+        currentWorkflowStatus,
       }}
     >
       {children}
