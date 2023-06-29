@@ -137,7 +137,7 @@ export const ProposalList = () => {
 
   return isVoter ? (
     <Box p="5" boxSize="4xl">
-      <Heading size="xl">Proposals Registration</Heading>
+      {(currentWorkflowStatus===1) && (
       <Box p="5" w="100%">
         <Textarea
           placeholder="Here is your proposal description"
@@ -153,6 +153,16 @@ export const ProposalList = () => {
           Add a proposal
         </Button>
       </Box>
+      )}
+      {(currentWorkflowStatus===5) && (
+      <Box p="5" w="100%">
+        <Textarea
+          placeholder="Here is your proposal description"
+          value={proposals[0].proposalDescription}
+        />
+      </Box>
+      )}
+
       <Box w="100%">
         {proposals && proposals.length === 0 ? (
           <Text fontSize="xl">There is no proposal yet</Text>
@@ -164,7 +174,13 @@ export const ProposalList = () => {
             {proposals.map((proposal, index) => (
               <CardBody key={index}>
                 <Stack divider={<StackDivider />} spacing="4">
-                  <Box p="2" border="1px" borderColor="gray.200" w="100%">
+
+                  {(winningProposalId === index) ? (
+                    <Box p="2" border="1px" borderColor="red.200" w="100%" borderStyle="dashed">
+                  ): (
+                    <Box p="2" border="1px" borderColor="grey.200" w="100%">
+                  )}
+                  
                     <Heading size="xs" textTransform="uppercase">
                       Proposition n° {proposal.proposalId.toString()}
                     </Heading>
@@ -172,12 +188,13 @@ export const ProposalList = () => {
                       <Text w="80%" pt="2" fontSize="sm" id="propDescr">
                         {proposal.proposalDescription}
                       </Text>
-                      <Badge ml="1" fontSize="0.8em" colorScheme="green">
+                      <Badge ml="1" maxHeight="20px" fontSize="0.8em" colorScheme="green">
                         {proposal.nbVote.toString()}
                         {proposal.nbVote && proposal.nbVote > BigNumber.from(1)
                           ? " votes"
                           : " vote"}
                       </Badge>
+                      {(currentWorkflowStatus===2) && (
                       <Button
                         colorScheme="teal"
                         variant="outline"
@@ -186,6 +203,7 @@ export const ProposalList = () => {
                       >
                         Vote
                       </Button>
+                      )}
                     </Box>
                   </Box>
                 </Stack>
