@@ -16,6 +16,7 @@ import {
   Button,
   Text,
   useToast,
+  Center,
 } from "@chakra-ui/react";
 import { getProposals } from "@/utils/proposal";
 import { BigNumber } from "ethers";
@@ -24,62 +25,16 @@ import { WorkflowStatus } from "@/types/ethers-contracts/Voting";
 
 export const ProposalList = () => {
   const { account, isVoter, contractWithSigner } = useContext(EthContext);
-  const { votes,currentWorkflowStatus,winningProposalId} = useContext(EventContext);
+  const { proposals,votes,currentWorkflowStatus,winningProposalId} = useContext(EventContext);
 
-  const [proposals, setProposals] = useState<Proposal[]>([]);
+  //const [proposals, setProposals] = useState<Proposal[]>([]);
   const [proposalInputValue, setProposalInputValue] = useState("");
   const [isSubmittingProposal, setIsSubmittingProposal] = useState(false);
   const [isSubmittingVote, setIsSubmittingVote] = useState(false);
   const toast = useToast();
 
-  useEffect(() => {
-    if (isVoter) {
-      const fetchProposals = async () => {
-        if (account && account.length !== 0) {
-          const proposals = await getProposals(account, contractWithSigner);
-          setProposals(proposals);
-        }
-      };
-      fetchProposals();
-    }
-  }, [account, isVoter]);
-
-  useEffect(() => {
-    if (isVoter) {
-      contractWithSigner.on("ProposalRegistered", (proposalId) => {
-        console.log("ProposalRegistered event : ", proposalId);
-
-        const newProp = contractWithSigner
-          .getOneProposal(proposalId)
-          .then((proposal) => {
-            const newProp: Proposal = {
-              proposalId: proposalId,
-              proposalDescription: proposal.description,
-              nbVote: proposal.voteCount,
-            };
-            setProposals((previousState) => [...previousState, newProp]);
-          });
-      });
-      contractWithSigner.on("Voted", (voterAddress) => {
-        console.log(
-          getProposals(account, contractWithSigner),
-          "helloooooooooooo"
-        );
-        toast({ title: "Vote registered successfully", status: "success" });
-        const proposals = getProposals(account, contractWithSigner).then(
-          (allProposals) => {
-            setProposals(allProposals);
-          }
-        );
-      });
-    }
-    return () => {
-      contractWithSigner.removeAllListeners("ProposalRegistered");
-      contractWithSigner.removeAllListeners("Voted");
-    };
-  }, []);
-
-  const voteForProposal = async (proposalId: BigNumber) => {
+  
+   const voteForProposal = async (proposalId: BigNumber) => {
     if (isVoter) {
       setIsSubmittingVote(true);
       console.log("voteForProposal: ", proposalId);
@@ -158,12 +113,17 @@ export const ProposalList = () => {
 
       {/* Votes Tallied */}
       {(currentWorkflowStatus===5) && (
-      <Box p="5" w="100%">
-        <Textarea
-          placeholder="Here is your proposal description"
-          value={proposals[winningProposalId.toNumber()].proposalDescription}
-        />
-      </Box>
+      <Card w="100%" backgroundColor="green.200">
+        <CardHeader>
+          <Heading size="md">Winnig Proposals</Heading>
+        </CardHeader>
+        <CardBody>
+          <Text>
+            {proposals?.[winningProposalId]?.proposalDescription}
+          </Text>
+        </CardBody>
+        <Stack divider={<StackDivider />} spacing="4"></Stack>
+      </Card>
       )}
 
       <Box w="100%">
@@ -177,13 +137,12 @@ export const ProposalList = () => {
             {proposals.map((proposal, index) => (
               <CardBody key={index}>
                 <Stack divider={<StackDivider />} spacing="4">
-
-                  {(winningProposalId.toNumber() === index) ? (
-                    <Box p="2" border="1px" borderColor="red.200" w="100%" borderStyle="dashed">
-                  ) : (
-                    <Box p="2" border="1px" borderColor="grey.200" w="100%">
-                  )}
-                  
+                    <Box p="2" w="100%"
+                      border={ currentWorkflowStatus!=5 && winningProposalId === index ? "3px" : "0px" }
+                      borderColor={ currentWorkflowStatus!=5 && winningProposalId === index ? "green.600" : "grey.200" }
+                      borderStyle={ currentWorkflowStatus!=5 && winningProposalId === index ? "dashed" : "normal" }
+                    >
+                 
                     <Heading size="xs" textTransform="uppercase">
                       Proposition n° {proposal.proposalId.toString()}
                     </Heading>
@@ -191,12 +150,19 @@ export const ProposalList = () => {
                       <Text w="80%" pt="2" fontSize="sm" id="propDescr">
                         {proposal.proposalDescription}
                       </Text>
-                      <Badge ml="1" maxHeight="20px" fontSize="0.8em" colorScheme="green">
-                        {proposal.nbVote.toString()}
-                        {proposal.nbVote && proposal.nbVote > BigNumber.from(1)
-                          ? " votes"
-                          : " vote"}
-                      </Badge>
+                      <Stack display="flex" flexDirection="column" width="100px">
+                          <Badge ml="1" p="2" borderRadius="5" fontSize="0.8em" colorScheme="green">
+                            {proposal.nbVote.toString()}
+                            {proposal.nbVote && proposal.nbVote > BigNumber.from(1)
+                              ? " votes"
+                              : " vote"}
+                          </Badge>
+                          {currentWorkflowStatus!=5 && winningProposalId === index &&
+                          <Text fontSize="xs" color="green.800">
+                            Current winning proposal
+                          </Text>
+                          }
+                      </Stack>
                       {(currentWorkflowStatus===2) && (
                       <Button
                         colorScheme="teal"
