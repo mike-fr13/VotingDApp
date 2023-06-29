@@ -10,6 +10,7 @@ type EventContextType = {
   votes: { voter: string; proposalId: BigNumber }[];
   currentWorkflowStatus: WorkflowStatus;
   votersAddress: string[];
+  winningProposalId: BigNumber;
 };
 
 export const EventContext = createContext<EventContextType>(null);
@@ -22,6 +23,7 @@ export const EventProvider = ({ children }) => {
   >([]);
   const [currentWorkflowStatus, setCurrentWorkflowStatus] =
     useState<WorkflowStatus>();
+  const [winningProposalId, setWinningProposalId] = useState<BigNumber>(null);
   const {
     provider,
     account,
@@ -134,6 +136,18 @@ export const EventProvider = ({ children }) => {
     };
   }, []);
 
+  useEffect(() => {
+    contractWithSigner.winningProposalID().then((id) => {
+      setWinningProposalId(id);
+    });
+
+    contract.on("WorkflowStatusChange", (_, newStatus) => {
+      if (newStatus === WorkflowStatus.VotesTallied) {
+        setWinningProposalId(newStatus);
+      }
+    });
+  }, []);
+
   return (
     <EventContext.Provider
       value={{
@@ -141,6 +155,7 @@ export const EventProvider = ({ children }) => {
         votes,
         currentWorkflowStatus,
         votersAddress,
+        winningProposalId,
       }}
     >
       {children}
