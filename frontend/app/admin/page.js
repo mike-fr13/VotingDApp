@@ -29,7 +29,7 @@ const admin = () => {
         align={"center"}
         gap={10}
         m={20}
-        maxWidth={650}
+        maxWidth={890}
       >
         <VotersList />
         <Stack>

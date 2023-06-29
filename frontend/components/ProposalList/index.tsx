@@ -19,10 +19,13 @@ import {
 import { getProposals } from "@/utils/proposal";
 import { BigNumber } from "ethers";
 import { Proposal } from "@/types/Proposal";
+import { EventContext } from "@/context/EventContext";
+import { WorkflowStatus } from "@/types/ethers-contracts/Voting";
 
 export const ProposalList = () => {
   const { account, isVoter, contractWithSigner } = useContext(EthContext);
-    const [proposals, setProposals] = useState<Proposal[]>([]);
+  const { currentWorkflowStatus } = useContext(EventContext);
+  const [proposals, setProposals] = useState<Proposal[]>([]);
   const [proposalInputValue, setProposalInputValue] = useState("");
   const [isSubmittingProposal, setIsSubmittingProposal] = useState(false);
   const [isSubmittingVote, setIsSubmittingVote] = useState(false);
@@ -79,8 +82,9 @@ export const ProposalList = () => {
     if (isVoter) {
       setIsSubmittingVote(true);
       console.log("voteForProposal: ", proposalId);
-      contractWithSigner.setVote(proposalId)
-        .finally(() => {setIsSubmittingVote(false)});
+      contractWithSigner.setVote(proposalId).finally(() => {
+        setIsSubmittingVote(false);
+      });
     }
   };
 
@@ -114,6 +118,21 @@ export const ProposalList = () => {
         });
       }
     }
+  }
+
+  if (currentWorkflowStatus === WorkflowStatus.RegisteringVoters) {
+    return (
+      <Box
+        display={"flex"}
+        p="5"
+        height={500}
+        minWidth={800}
+        justifyContent={"center"}
+        alignItems={"center"}
+      >
+        <Heading size="lg">Proposal registration will open soon ! ⏳</Heading>
+      </Box>
+    );
   }
 
   return isVoter ? (
@@ -177,8 +196,14 @@ export const ProposalList = () => {
       </Box>
     </Box>
   ) : (
-    <Box p="5">
-      <Heading size="xl">You're not a registred Voter</Heading>
+    <Box
+      display={"flex"}
+      p="5"
+      height={500}
+      justifyContent={"center"}
+      alignItems={"center"}
+    >
+      <Heading size="lg">You're not a registred Voter</Heading>
     </Box>
   );
 };

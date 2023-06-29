@@ -14,6 +14,7 @@ import {
 import { Overrides, ContractTransaction } from "ethers";
 import { redirect } from "next/navigation";
 import React, { useContext, useEffect, useState } from "react";
+import WorkflowStep, { steps } from "../WorkflowStep";
 
 export default function StatusSwitcher() {
   const { currentWorkflowStatus } = useContext(EventContext);
@@ -85,10 +86,7 @@ export default function StatusSwitcher() {
 
   return (
     <Stack>
-      <Text>
-        The current status is :{" "}
-        <strong>{WorkflowStatus[currentWorkflowStatus]}</strong>
-      </Text>
+      <WorkflowStep />
       {currentWorkflowStatus !== WorkflowStatus.VotesTallied && (
         <Button
           onClick={handleWorkflowChange}
@@ -97,7 +95,7 @@ export default function StatusSwitcher() {
             WorkflowStatus[currentWorkflowStatus + 1]
           } in progress`}
         >
-          Change status to {WorkflowStatus[currentWorkflowStatus + 1]}
+          Change status to {steps[currentWorkflowStatus + 1].title}
         </Button>
       )}
     </Stack>
