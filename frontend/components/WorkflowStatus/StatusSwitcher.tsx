@@ -95,7 +95,7 @@ export default function StatusSwitcher() {
             WorkflowStatus[currentWorkflowStatus + 1]
           } in progress`}
         >
-          Change status to {steps[currentWorkflowStatus + 1].title}
+          Change status to {steps[currentWorkflowStatus + 1]?.title}
         </Button>
       )}
     </Stack>
