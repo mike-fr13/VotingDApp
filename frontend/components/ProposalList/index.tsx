@@ -24,7 +24,8 @@ import { WorkflowStatus } from "@/types/ethers-contracts/Voting";
 
 export const ProposalList = () => {
   const { account, isVoter, contractWithSigner } = useContext(EthContext);
-  const { currentWorkflowStatus } = useContext(EventContext);
+  const { votes,currentWorkflowStatus,winningProposalId} = useContext(EventContext);
+
   const [proposals, setProposals] = useState<Proposal[]>([]);
   const [proposalInputValue, setProposalInputValue] = useState("");
   const [isSubmittingProposal, setIsSubmittingProposal] = useState(false);
@@ -154,11 +155,13 @@ export const ProposalList = () => {
         </Button>
       </Box>
       )}
+
+      {/* Votes Tallied */}
       {(currentWorkflowStatus===5) && (
       <Box p="5" w="100%">
         <Textarea
           placeholder="Here is your proposal description"
-          value={proposals[0].proposalDescription}
+          value={proposals[winningProposalId.toNumber()].proposalDescription}
         />
       </Box>
       )}
@@ -175,9 +178,9 @@ export const ProposalList = () => {
               <CardBody key={index}>
                 <Stack divider={<StackDivider />} spacing="4">
 
-                  {(winningProposalId === index) ? (
+                  {(winningProposalId.toNumber() === index) ? (
                     <Box p="2" border="1px" borderColor="red.200" w="100%" borderStyle="dashed">
-                  ): (
+                  ) : (
                     <Box p="2" border="1px" borderColor="grey.200" w="100%">
                   )}
                   
