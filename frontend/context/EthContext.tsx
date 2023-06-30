@@ -106,13 +106,6 @@ export const EthProvider = ({ children }) => {
     }
   }
 
-  const removeHandledContractEvents = async () => {
-    contract.removeAllListeners("VoterRegistered");
-    contract.removeAllListeners("WorkflowStatusChange");
-    contract.removeAllListeners("ProposalRegistered");
-    contract.removeAllListeners("Voted");
-  };
-
   const handleAccountEvents = async () => {
     ethereum.on("accountsChanged", getConnectedAccounts);
     ethereum.on("chainChanged", (chainId) => setChainId(chainId));
@@ -139,7 +132,6 @@ export const EthProvider = ({ children }) => {
       if (checkEthereumExists()) {
         removeHandledAccountEvents();
       }
-      removeHandledContractEvents();
     };
   }, []);
 

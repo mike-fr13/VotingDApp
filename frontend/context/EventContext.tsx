@@ -80,7 +80,7 @@ export const EventProvider = ({ children }) => {
       });
     }
 
-    () => {
+    return() => {
       contract.removeAllListeners("ProposalRegistered");
     };
   }, [votersAddress, account, isVoter]);
@@ -95,7 +95,7 @@ export const EventProvider = ({ children }) => {
       setVotersAddress((prevState) => [...prevState, voterAddress]);
     });
 
-    () => {
+    return() => {
       contract.removeAllListeners("VoterRegistered");
     };
   }, []);
@@ -116,7 +116,7 @@ export const EventProvider = ({ children }) => {
       setVotes((prevState) => [...prevState, { voter, proposalId }]);
     });
 
-    () => {
+    return () => {
       contract.removeAllListeners("Voted");
     };
   }, []);
@@ -131,7 +131,7 @@ export const EventProvider = ({ children }) => {
       setCurrentWorkflowStatus(newStatus);
     });
 
-    () => {
+    return() => {
       contract.removeAllListeners("WorkflowStatusChange");
     };
   }, []);
