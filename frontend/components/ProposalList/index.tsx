@@ -168,7 +168,7 @@ export const ProposalList = () => {
                             }
                         </Stack>
                       }
-                      {(currentWorkflowStatus===2) && (
+                      {(currentWorkflowStatus===3) && (
                         <Button
                           colorScheme="teal"
                           variant="outline"
