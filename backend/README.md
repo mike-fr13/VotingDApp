@@ -67,7 +67,7 @@ This section verifies that the voting contract is deployed and initialized corre
 - It checks that the initial winningProposalID is 0.
 - It checks that the initial workflow status is "RegisteringVoters" (0).
 
-### Workflow Status Change Tests
+### Workflow Status Change Tests
 
 This section verifies that the different workflow status transitions are handled correctly.
 
