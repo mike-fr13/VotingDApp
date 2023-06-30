@@ -6,7 +6,7 @@ REPORT_GAS=true npx hardhat test
 
 # Deploiement du backend en en Local sous hardhat
 
-## Lancement de la blockain en local
+## Lancement de la blockchain en local
 ```bash npx hardhat node```
 
 ## deploiement du contrat en local 
@@ -20,7 +20,11 @@ REPORT_GAS=true npx hardhat test
 
 
 # Correction du DOS sur le tallyVotes()
-Cette fonction parcourait l'ensemble du tableau des propositions afin de determiner celle ayant le plus de vote. Cela offrait potentiellement  une attaque DOS si 
+Cette fonction parcourait l'ensemble du tableau des propositions afin de determiner celle ayant le plus de vote. Cela offrait potentiellement  une attaque DOS si de trop nombreuses proposals étaient saisies. La correction apportée pass par une évaluation de la proposal gagnante lors de chaque nouveau vote, cela evitant la boucle de parcourt de l'ensemble des proposals.
+
+Nous aurions pu aller pus loin et modifier voir supprimer la fonction `votestally()` car celle ci n'est plus nécéssaire mis à part pour envoyé l'event `VotesTallied`.
+
+Cet event pourrait tout aussi bien être envoyé lors du changement de statut de `VotingSessionStarted` vers `VotingSessionEnded`  
 
 
 # Stratégie des tests pour le contrat de vote
@@ -126,7 +130,7 @@ Cette section vérifie le bon fonctionnement du vote.
 - Elle vérifie que si aucun vote n'a été fait, `tallyVotes()` renvoie l'ID de la proposition GENESIS comme `winningProposalID`.
 
 -----------------
-
+```
  Voting contract Tests
     Contract Deployment
       ✔ should deploy the smart contract (182ms)
@@ -208,3 +212,4 @@ File         |  % Stmts | % Branch |  % Funcs |  % Lines |Uncovered Lines |
 -------------|----------|----------|----------|----------|----------------|
 All files    |      100 |      100 |      100 |      100 |                |
 -------------|----------|----------|----------|----------|----------------|
+```
