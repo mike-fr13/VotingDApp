@@ -112,19 +112,45 @@ export const ProposalList = () => {
       )}
 
       {/* Votes Tallied */}
-      {(currentWorkflowStatus===5) && (
+      {(currentWorkflowStatus===5) && (winningProposalId != 0) && (
       <Card w="100%" backgroundColor="green.200" p="5">
         <CardHeader>
           <Heading size="md">Winning Proposal</Heading>
         </CardHeader>
-        <CardBody>
-          <Heading size="xs" textTransform="uppercase">
-            Proposition n° {winningProposalId}
-          </Heading>
-          <Text>
-            {proposals?.[winningProposalId]?.proposalDescription}
-          </Text>
-        </CardBody>
+            <CardBody>
+                <Heading size="xs" textTransform="uppercase">
+                  Proposition n° {winningProposalId}
+                </Heading>
+                <Text>
+                  {proposals?.[winningProposalId]?.proposalDescription}
+                </Text>
+            </CardBody>
+        <Stack divider={<StackDivider />} spacing="4"></Stack>
+      </Card>
+      )}
+
+     
+      {(currentWorkflowStatus===5) && (winningProposalId == 0) && (
+      <Card w="100%" backgroundColor="green.200" p="5">
+        <CardHeader>
+          <Heading size="md">No Winning proposals</Heading>
+        </CardHeader>
+            <CardBody>
+                  {(proposals.length === 0) ? (
+                    <Heading size="xs" textTransform="uppercase">
+                      No proposal registered !
+                    </Heading>
+                    ) : (
+                        <Heading size="xs" textTransform="uppercase">
+                           {(proposals.length === 1)? (
+                              <>No Vote on the registered proposal !</>
+                           ) : (
+                              <>No Vote on the {proposals.length} registered proposals !</>
+                           )}
+                        </Heading>
+                    )
+                  }
+            </CardBody>
         <Stack divider={<StackDivider />} spacing="4"></Stack>
       </Card>
       )}

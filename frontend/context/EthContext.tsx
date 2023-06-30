@@ -145,8 +145,7 @@ export const EthProvider = ({ children }) => {
       getOwner().then((ownerAddress) => {
         console.log("useEffect[account] - ownerAddress : ", ownerAddress);
         if (
-          ethers.utils.getAddress(ownerAddress) ===
-          ethers.utils.getAddress(account)
+          ethers.utils.getAddress(ownerAddress) === account
         ) {
           setIsOwner(true);
         } else {
