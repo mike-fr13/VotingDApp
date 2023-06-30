@@ -114,7 +114,7 @@ tallyVotes() Results Tests
     It checks that tallyVotes() updates the winningProposalID to the ID of the proposal with the highest number of votes.
     It checks that if no votes have been cast, tallyVotes() returns the GENESIS proposal ID as the winningProposalID.
 
-License
+# License
 
 This project is licensed under the MIT License.
 Acknowledgements
@@ -126,10 +126,6 @@ Thank you for your interest in the VotingDapp backend project. If you have any f
 User
 pour les parties en code, pourrais tu les entourer de ceci ``` et me donner la source de tous le fichier en un seul morceau ?
 ChatGPT
-
-Bien sûr ! Voici le fichier README complet en un seul morceau avec les parties de code entourées de balises ```.
-
-csharp
 
 # Backend Description of VotingDapp
 
