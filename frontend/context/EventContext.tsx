@@ -91,7 +91,9 @@ export const EventProvider = ({ children }) => {
     });
 
     contract.on("VoterRegistered", (voterAddress) => {
-      setVotersAddress((prevState) => [...prevState, voterAddress]);
+      if (!votersAddress.includes(voterAddress)) {
+        setVotersAddress((prevState) => [...prevState, voterAddress]);
+      }
     });
 
     return () => {
