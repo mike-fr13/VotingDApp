@@ -41,7 +41,7 @@ This repository contains the backend code for the VotingDapp project. The backen
 
 # Fixing the Denial-of-Service (DoS) Vulnerability in tallyVotes()
 
-The original implementation of tallyVotes() function iterated over the entire array of proposals to determine the proposal with the most votes. This approach potentially allowed a DoS attack if too many proposals were entered. The fix involves evaluating the winning proposal with each new vote, avoiding the need to iterate over all the proposals.
+The original implementation of tallyVotes() function iterated over the entire array of proposals to determine the proposal with the most votes. This approach potentially allowed a Gas Limit DoS attack if too many proposals were entered. The fix involves evaluating the winning proposal with each new vote, avoiding the need to iterate over all the proposals.
 
 Additionally, the votestally() function could be modified or removed, as it is no longer necessary apart from triggering the VotesTallied event. This event could be emitted during the transition from VotingSessionStarted to VotingSessionEnded.
 
