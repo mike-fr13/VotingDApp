@@ -119,7 +119,9 @@ export const EventProvider = ({ children }) => {
       setVotes((prevVotes) =>
         new Map(prevVotes).set(ethers.utils.getAddress(voter), proposalId)
       );
-      console.log("new voter : ", voter, " - ", proposalId);
+      contractWithSigner.winningProposalID().then((id) => {
+        setWinningProposalId(id.toNumber());
+      });
     });
 
     return () => {
