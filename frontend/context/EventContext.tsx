@@ -4,10 +4,11 @@ import { BigNumber, ethers } from "ethers";
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { EthContext } from "./EthContext";
 import { WorkflowStatus } from "@/types/ethers-contracts/Voting";
+import { Voter } from "@/types/Voter";
 
 type EventContextType = {
   proposals: Proposal[];
-  votes: { voter: string; proposalId: BigNumber }[];
+  votes: Map<string,BigNumber>;
   currentWorkflowStatus: WorkflowStatus;
   votersAddress: string[];
   winningProposalId: number;
@@ -18,9 +19,7 @@ export const EventContext = createContext<EventContextType>(null);
 export const EventProvider = ({ children }) => {
   const [proposals, setProposals] = useState<Proposal[]>([]);
   const [votersAddress, setVotersAddress] = useState<string[]>([]);
-  const [votes, setVotes] = useState<
-    { voter: string; proposalId: BigNumber }[]
-  >([]);
+  const [votes, setVotes] = useState<Map<string,BigNumber>>(new Map());
   const [currentWorkflowStatus, setCurrentWorkflowStatus] =
     useState<WorkflowStatus>();
   const [winningProposalId, setWinningProposalId] = useState<number>(null);
@@ -83,7 +82,7 @@ export const EventProvider = ({ children }) => {
     return() => {
       contract.removeAllListeners("ProposalRegistered");
     };
-  }, [votersAddress, account, isVoter]);
+  }, [votersAddress, account, isVoter,votes]);
 
   useEffect(() => {
     const votersFilter = contract.filters.VoterRegistered();
@@ -104,16 +103,19 @@ export const EventProvider = ({ children }) => {
     const voteFilter = contract.filters.Voted();
 
     contract.queryFilter(voteFilter).then((events) => {
-      setVotes(
-        events.map((event) => ({
-          voter: event.args.voter,
-          proposalId: event.args.proposalId,
-        }))
-      );
+      events.forEach((event) => {
+        const voter = event.args.voter;
+        const proposalId = event.args.proposalId;
+
+        setVotes((prevVotes) => prevVotes.set(ethers.utils.getAddress(voter), proposalId));
+        console.log("new voter : ", voter, " - ", proposalId)      
+        console.log("votes : ", votes)      
+      });
     });
 
     contract.on("Voted", (voter, proposalId) => {
-      setVotes((prevState) => [...prevState, { voter, proposalId }]);
+      setVotes((prevVotes) => (new Map(prevVotes).set(ethers.utils.getAddress(voter), proposalId)))
+      console.log("new voter : ", voter, " - ", proposalId)
     });
 
     return () => {

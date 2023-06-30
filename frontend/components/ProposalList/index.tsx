@@ -138,12 +138,12 @@ export const ProposalList = () => {
               <Heading size="md">Proposals List</Heading>
             </CardHeader>
             {proposals.map((proposal, index) => (
-              <CardBody key={index}>
+              <CardBody key={index+1}>
                 <Stack divider={<StackDivider />} spacing="4">
                     <Box p="2" w="100%"
-                      border={ currentWorkflowStatus!=5 && winningProposalId === index ? "3px" : "0px" }
-                      borderColor={ (currentWorkflowStatus ===3 || currentWorkflowStatus ===4) && winningProposalId === index ? "green.600" : "grey.200" }
-                      borderStyle={ (currentWorkflowStatus ===3 || currentWorkflowStatus ===4) && winningProposalId === index ? "dashed" : "normal" }
+                      border={ currentWorkflowStatus!=5 && winningProposalId === (index+1) ? "3px" : "0px" }
+                      borderColor={ (currentWorkflowStatus ===3 || currentWorkflowStatus ===4) && winningProposalId === (index+1) ? "green.600" : "grey.200" }
+                      borderStyle={ (currentWorkflowStatus ===3 || currentWorkflowStatus ===4) && winningProposalId === (index+1) ? "dashed" : "normal" }
                     >
                  
                     <Heading size="xs" textTransform="uppercase">
@@ -161,14 +161,16 @@ export const ProposalList = () => {
                                 ? " votes"
                                 : " vote"}
                             </Badge>
-                            {winningProposalId === index && currentWorkflowStatus!=5 &&
+                            {winningProposalId === (index+1) && currentWorkflowStatus!=5 &&
                               <Text fontSize="xs" color="green.800">
                                 Current winning proposal
                               </Text>
                             }
                         </Stack>
                       }
-                      {(currentWorkflowStatus===3) && (
+                      {
+                      (currentWorkflowStatus===3) && (!votes.has(account)) && 
+                      (
                         <Button
                           colorScheme="teal"
                           variant="outline"
@@ -177,6 +179,13 @@ export const ProposalList = () => {
                         >
                           Vote
                         </Button>
+                      )}
+                      {
+                      (currentWorkflowStatus >= 3) && ((votes.get(account)?.toNumber()) === (index+1)) && 
+                      (
+                        <Badge ml="1" p="2" borderRadius="5" fontSize="0.8em" colorScheme="red">
+                                Your choice
+                        </Badge>
                       )}
                     </Box>
                   </Box>

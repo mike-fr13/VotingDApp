@@ -4,7 +4,6 @@ import { Contract, ContractInterface, ethers } from "ethers";
 import votingABI from "@/utils/abi";
 import { Voting } from "@/types/ethers-contracts";
 import { useToast } from "@chakra-ui/react";
-import { Voter } from "@/types/Voter";
 
 
 const votingContractAddress = process.env.NEXT_PUBLIC_VOTING_CONTRACT_ADDRESS;
@@ -67,7 +66,7 @@ export const EthProvider = ({ children }) => {
     ethereum
       .request({ method: "eth_accounts" })
       .then((accounts) => {
-        setAccount(accounts[0]);
+        setAccount(ethers.utils.getAddress(accounts[0]));
       })
       .catch((error) => {
         console.log("getConnectedAccounts - error :", error.message);
@@ -85,7 +84,7 @@ export const EthProvider = ({ children }) => {
       ethereum
         .request({ method: "eth_requestAccounts" })
         .then((accounts) => {
-          setAccount(accounts[0]);
+          setAccount(ethers.utils.getAddress(accounts[0]));
           console.log("connectWallet - account : ", accounts);
         })
         .catch((err) => {
