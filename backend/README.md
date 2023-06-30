@@ -1,135 +1,265 @@
-# Description de la partie Back
+# README
+
+    Disclaimer: Development Code
+
+    The code provided in this repository is intended for development and learning purposes only. It is not suitable for production use without proper review, testing, and security considerations. The code may contain bugs, vulnerabilities, or other issues that could result in unexpected behavior or compromise the security of the system.
+
+    This repository contains the backend code for the VotingDapp project. The backend is developed using Hardhat, a development environment for Ethereum. It includes the smart contract code and test cases.
+    Running Tests
+
+# Backend Deployment and Tests run
+
+- To run the tests for the backend, use the following commands:
+
+    `npx hardhat test`
+
+- For gas reporting during tests, use the following command:
+
+    `REPORT_GAS=true npx hardhat test`
+
+## Deploying the Backend Locally with Hardhat
+
+- To start a local blockchain, run the following command:
+
+    `npx hardhat node`
+
+- To deploy the contract locally, use the following command:
+
+    `npx hardhat run scripts/deploy.js --network localhost`
+
+- To inject test data, use the following command:
+
+    `npx hardhat run scripts/inject_data.js --network localhost`
+
+- To deploy the backend on the Goerli testnet, use the following command:
+
+    `npx hardhat run scripts/deploy.js --network goerli`
+
+# Fixing the Denial-of-Service (DoS) Vulnerability in tallyVotes()
+
+The original implementation of tallyVotes() function iterated over the entire array of proposals to determine the proposal with the most votes. This approach potentially allowed a DoS attack if too many proposals were entered. The fix involves evaluating the winning proposal with each new vote, avoiding the need to iterate over all the proposals.
+
+Additionally, the votestally() function could be modified or removed, as it is no longer necessary apart from triggering the VotesTallied event. This event could be emitted during the transition from VotingSessionStarted to VotingSessionEnded.
+Testing Strategy for the Voting Contract
+General Organization
+
+The test file is divided into multiple sections, each corresponding to a specific functionality of the voting contract.
+
+Several fixture functions are defined at the beginning of the file to deploy the voting contract and prepare it for various test scenarios:
+
+    deployFixture(): Deploys the contract.
+    prepareProposalDeposalFixture(): Previous fixture plus adding voters and changing the state.
+    prepareVotingFixture(): Previous fixture plus adding proposals and changing the state.
+    prepareTallyFixture(): Previous fixture plus adding votes.
+
+Test Sections
+Contract Deployment Tests
+
+This section verifies that the voting contract is deployed and initialized correctly.
+
+    It checks the owner of the contract.
+    It checks that the initial winningProposalID is 0.
+    It checks that the initial workflow status is "RegisteringVoters" (0).
+
+Workflow Status Change Tests
+
+This section verifies that the different workflow status transitions are handled correctly.
+
+    For each workflow status transition (startProposalsRegistering(), endProposalsRegistering(), startVotingSession(), endVotingSession()), it checks that calling the function by a non-owner fails.
+    It checks that the workflow status is updated correctly after each transition.
+    It checks that a WorkflowStatusChange event is emitted at each workflow status transition.
+    It checks that certain transitions are not allowed.
+
+Voter Registration Tests
+
+This section verifies that voter registration is handled correctly.
+
+    It checks that only the owner of the contract can add voters.
+    It checks that adding voters is only possible when the workflow status is "RegisteringVoters".
+    It checks that adding a voter emits a VoterRegistered event.
+    It checks that adding an already registered voter fails.
+
+Proposal Registration Tests
+
+This section verifies that proposal registration is handled correctly.
+
+    It checks that adding a proposal is only possible when the workflow status is "ProposalsRegistrationStarted".
+    It checks that only a registered voter can add a proposal.
+    It checks that adding an empty proposal fails.
+    It checks that adding a proposal emits a ProposalRegistered event.
+
+Voting Tests
+
+This section tests the voting functionality.
+setVote() Tests
+
+    It checks that an error "You're not a voter" is returned if an unregistered voter tries to vote.
+    It checks that an error "Voting session haven't started yet" is returned if voting is attempted before the voting session has started.
+    It checks that an error "Proposal not found" is returned if voting for a non-existent proposal is attempted.
+    It checks that a voter can vote for an existing proposal, which emits a Voted event.
+    It checks that the hasVoted property of the voter is set to true after voting.
+    It checks that the votedProposalId property of the voter is updated with the proposal ID after voting.
+    It checks that voting for a proposal increases the vote count for that proposal by 1.
+    It checks that a voter cannot vote twice.
+
+Additional tallyVotes() Tests
+
+    It checks that an error is returned if a non-owner attempts to execute the tallyVotes() function.
+    It checks that an error "Current status is not voting session ended" is returned if tallyVotes() is called when the voting session is not yet ended.
+    It checks that calling tallyVotes() by the owner succeeds and emits a WorkflowStatusChange event when the workflow status is 4 (voting session ended).
+
+Vote Counting and Result Tests
+tallyVotes() Results Tests
+
+    It checks that tallyVotes() updates the winningProposalID to the ID of the proposal with the highest number of votes.
+    It checks that if no votes have been cast, tallyVotes() returns the GENESIS proposal ID as the winningProposalID.
+
+License
+
+This project is licensed under the MIT License.
+Acknowledgements
+
+The development of this project was inspired by the Ethereum blockchain and the decentralized voting concept.
+
+Thank you for your interest in the VotingDapp backend project. If you have any further questions, feel free to reach out. Happy voting!
+
+User
+pour les parties en code, pourrais tu les entourer de ceci ``` et me donner la source de tous le fichier en un seul morceau ?
+ChatGPT
+
+Bien sûr ! Voici le fichier README complet en un seul morceau avec les parties de code entourées de balises ```.
+
+csharp
+
+# Backend Description of VotingDapp
+
+This repository contains the backend code for the VotingDapp project. The backend is developed using Hardhat, a development environment for Ethereum. It includes the smart contract code and test cases.
+
+## Running Tests
+
+To run the tests for the backend, use the following commands:
 
 npx hardhat test
+
+bash
+
+
+For gas reporting during tests, use the following command:
+
 REPORT_GAS=true npx hardhat test
 
-
-# Deploiement du backend en en Local sous hardhat
-
-## Lancement de la blockchain en local
-```bash npx hardhat node```
-
-## deploiement du contrat en local 
-```bash npx hardhat run scripts/deploy.js --network localhost```
-
-## injection des données de tests si nécéssaire
-```bash npx hardhat run scripts/inject_data.js --network localhost```
-
-# Deploiement du backend en en Local sous Goerli
-```bash npx hardhat run scripts/deploy.js --network goerli```
+bash
 
 
-# Correction du DOS sur le tallyVotes()
-Cette fonction parcourait l'ensemble du tableau des propositions afin de determiner celle ayant le plus de vote. Cela offrait potentiellement  une attaque DOS si de trop nombreuses proposals étaient saisies. La correction apportée pass par une évaluation de la proposal gagnante lors de chaque nouveau vote, cela evitant la boucle de parcourt de l'ensemble des proposals.
+## Deploying the Backend Locally with Hardhat
 
-Nous aurions pu aller pus loin et modifier voir supprimer la fonction `votestally()` car celle ci n'est plus nécéssaire mis à part pour envoyé l'event `VotesTallied`.
+### Launching the Local Blockchain
 
-Cet event pourrait tout aussi bien être envoyé lors du changement de statut de `VotingSessionStarted` vers `VotingSessionEnded`  
+To start a local blockchain, run the following command:
+
+`npx hardhat node`
+
+## Deploying the Contract Locally
+
+To deploy the contract locally, use the following command:
+
+`npx hardhat run scripts/deploy.js --network localhost`
+
+## Injecting Test Data (If Necessary)
+
+To inject test data, use the following command:
+
+`npx hardhat run scripts/inject_data.js --network localhost`
+
+## Deploying the Backend on the Goerli Testnet
+
+To deploy the backend on the Goerli testnet, use the following command:
+
+`npx hardhat run scripts/deploy.js --network goerli`
+
+# Fixing the Denial-of-Service (DoS) Vulnerability in tallyVotes()
+
+The original implementation of tallyVotes() function iterated over the entire array of proposals to determine the proposal with the most votes. This approach potentially allowed a DoS attack if too many proposals were entered. The fix involves evaluating the winning proposal with each new vote, avoiding the need to iterate over all the proposals.
+
+Additionally, the votestally() function could be modified or removed, as it is no longer necessary apart from triggering the VotesTallied event. This event could be emitted during the transition from VotingSessionStarted to VotingSessionEnded.
 
 
-# Stratégie des tests pour le contrat de vote
+# Testing Strategy for the Voting Contract
+## General Organization
 
-## Organisation générale
+The test file is divided into multiple sections, each corresponding to a specific functionality of the voting contract.
 
-Le fichier de test est organisé en plusieurs sections, chacune correspondant à une série de tests sur une fonctionnalité spécifique du contrat de vote.
+Several fixture functions are defined at the beginning of the file to deploy the voting contract and prepare it for various test scenarios:
 
-Une série de fonctions d'amorçage (fixtures) sont définies au début du fichier pour déployer le contrat de vote et le préparer pour différents scénarios de test.  
+- deployFixture(): Deploys the contract.
+- prepareProposalDeposalFixture(): Previous fixture plus adding voters and changing the state.
+- prepareVotingFixture(): Previous fixture plus adding proposals and changing the state.
+- prepareTallyFixture(): Previous fixture plus adding votes.
 
-```
-- deployFixture() : un simple deploiment du contrat.
-- prepareProposalDeposalFixture() : fixture précédente + ajout de Voters et chgt d'état
-- prepareVotingFixture() : fixture précédente + ajout de proposals et chgt d'état
-- prepareTallyFixture(): fixture précédente + ajout de votes
-```
+## Test Sections
+### Contract Deployment Tests
 
-**Ci dessous,  les différentes sections de test :**
-## Tests de déploiement du contrat
+This section verifies that the voting contract is deployed and initialized correctly.
 
-Cette section vérifie que le contrat de vote est correctement déployé et initialisé. 
+- It checks the owner of the contract.
+- It checks that the initial winningProposalID is 0.
+- It checks that the initial workflow status is "RegisteringVoters" (0).
 
-- Elle vérifie le `owner`.
+### Workflow Status Change Tests
 
-- Elle vérifie que le `winningProposalID` est initialement égal à 0.
+This section verifies that the different workflow status transitions are handled correctly.
 
-- Elle vérifie que le statut de workflow initial est "RegisteringVoters" (0).
+- For each workflow status transition (startProposalsRegistering(), endProposalsRegistering(),  startVotingSession(), endVotingSession()), it checks that calling the function by a non-owner fails.
+- It checks that the workflow status is updated correctly after each transition.
+- It checks that a WorkflowStatusChange event is emitted at each workflow status transition.
+- It checks that certain transitions are not allowed.
 
-## Tests de changement de statut de workflow
+### Voter Registration Tests
 
-Cette section vérifie que les différentes transitions de statut de workflow sont correctement gérées.
+This section verifies that voter registration is handled correctly.
 
-- Pour chaque transition de statut de workflow (`startProposalsRegistering()`, `endProposalsRegistering()`, `startVotingSession()`, `endVotingSession()`), elle vérifie que l'appel de la fonction par un non-owner échoue.
+- It checks that only the owner of the contract can add voters.
+- It checks that adding voters is only possible when the workflow status is "RegisteringVoters".
+- It checks that adding a voter emits a VoterRegistered event.
+- It checks that adding an already registered voter fails.
 
-- Elle vérifie que le statut de workflow est correctement mis à jour après chaque transition.
+### Proposal Registration Tests
 
-- Elle vérifie qu'un événement `WorkflowStatusChange` est émis à chaque transition de statut de workflow.
+This section verifies that proposal registration is handled correctly.
 
-- Elle vérifie que certaines transitions ne sont pas autorisées.
+- It checks that adding a proposal is only possible when the workflow status is "ProposalsRegistrationStarted".
+- It checks that only a registered voter can add a proposal.
+- It checks that adding an empty proposal fails.
+- It checks that adding a proposal emits a ProposalRegistered event.
 
-## Tests d'enregistrement des électeurs
+### Voting Tests
 
-Cette section vérifie que l'enregistrement des électeurs est correctement géré.
+This section tests the voting functionality.
+setVote() Tests
 
-- Elle vérifie que seul le owner du contrat peut ajouter des électeurs.
+- It checks that an error "You're not a voter" is returned if an unregistered voter tries to vote.
+- It checks that an error "Voting session haven't started yet" is returned if voting is attempted before the voting session has started.
+- It checks that an error "Proposal not found" is returned if voting for a non-existent proposal is attempted.
+- It checks that a voter can vote for an existing proposal, which emits a Voted event.
+- It checks that the hasVoted property of the voter is set to true after voting.
+- It checks that the votedProposalId property of the voter is updated with the proposal ID after voting.
+- It checks that voting for a proposal increases the vote count for that proposal by 1.
+- It checks that a voter cannot vote twice.
 
-- Elle vérifie que l'ajout d'électeurs n'est possible que lorsque le statut de workflow est "RegisteringVoters".
+### Additional tallyVotes() Tests
 
-- Elle vérifie que l'ajout d'un électeur émet un événement `VoterRegistered`.
+- It checks that an error is returned if a non-owner attempts to execute the tallyVotes() function
+- It checks that an error "Current status is not voting session ended" is returned if tallyVotes() is called when the voting session is not yet ended.
+- It checks that calling tallyVotes() by the owner succeeds and emits a WorkflowStatusChange event when the workflow status is 4 (voting session ended).
 
-- Elle vérifie que l'ajout d'un électeur déjà enregistré échoue.
+### Vote Counting and Result Tests
+tallyVotes() Results Tests
 
-## Tests d'enregistrement des propositions
-
-Cette section vérifie que l'enregistrement des propositions est correctement géré.
-
-- Elle vérifie que l'ajout d'une proposition n'est possible que lorsque le statut de workflow est "ProposalsRegistrationStarted".
-
-- Elle vérifie que seul un électeur enregistré peut ajouter une proposition.
-
-- Elle vérifie que l'ajout d'une proposition vide échoue.
-
-- Elle vérifie que l'ajout d'une proposition émet un événement `ProposalRegistered`.
-
-## Tests de vote
-
-Cette section vérifie le bon fonctionnement du vote.
-
-### Tests `setVote()`
-
-- Elle vérifie qu'une erreur "You're not a voter" est renvoyée si un électeur non enregistré essaie de voter.
-
-- Elle vérifie qu'une erreur "Voting session haven't started yet" est renvoyée si on tente de voter alors que la session de vote n'a pas encore commencé.
-
-- Elle vérifie qu'une erreur "Proposal not found" est renvoyée si on tente de voter pour une proposition qui n'existe pas.
-
-- Elle vérifie qu'un électeur peut voter pour une proposition existante et que cela émet un événement `Voted`.
-
-- Elle vérifie que la propriété `hasVoted` de l'électeur est mise à `true` après avoir voté.
-
-- Elle vérifie que la propriété `votedProposalId` de l'électeur est mise à jour avec l'ID de la proposition après avoir voté.
-
-- Elle vérifie que le vote pour une proposition augmente le compteur de vote de cette proposition de 1.
-
-- Elle vérifie qu'un électeur ne peut pas voter deux fois.
-
-- Nous aurions pu faire quelques tests complémentaires pour vérifier que la winnigProposalID  est mise à jour au fur et à mesure dess votes mais dans tous les cas, le résultat final est couvert par les tests de la fonction `tallyVote()`
-
-## Tests de comptage des votes et de résultats
-
-### Tests `tallyVotes()`
-
-- Elle vérifie qu'une erreur est renvoyée si un non-owner tente d'exécuter la fonction `tallyVotes()`.
-
-- Elle vérifie qu'une erreur "Current status is not voting session ended" est renvoyée si `tallyVotes()` est appelé alors que la session de vote n'est pas terminée.
-
-- Elle vérifie que l'appel à `tallyVotes()` par le owner réussit et émet un événement `WorkflowStatusChange` lorsque le statut de workflow est à 4 (session de vote terminée).
-
-### Tests des résultats de `tallyVotes()`
-
-- Elle vérifie que `tallyVotes()` met à jour l'ID de la proposition gagnante (`winningProposalID`) à l'ID de la proposition avec le maximum de votes.
-
-- Elle vérifie que si aucun vote n'a été fait, `tallyVotes()` renvoie l'ID de la proposition GENESIS comme `winningProposalID`.
+- It checks that tallyVotes() updates the winningProposalID to the ID of the proposal with the highest number of votes.
+-It checks that if no votes have been cast, tallyVotes() returns the GENESIS proposal ID as the winningProposalID.
 
 -----------------
+
 ```
  Voting contract Tests
     Contract Deployment
@@ -213,3 +343,13 @@ File         |  % Stmts | % Branch |  % Funcs |  % Lines |Uncovered Lines |
 All files    |      100 |      100 |      100 |      100 |                |
 -------------|----------|----------|----------|----------|----------------|
 ```
+
+License
+
+This project is licensed under the MIT License.
+Acknowledgements
+
+The development of this project was inspired by the Ethereum blockchain and the decentralized voting concept.
+
+Thank you for your interest in the VotingDapp backend project. If you have any further questions, feel free to reach out. Happy voting!
+
