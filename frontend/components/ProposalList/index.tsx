@@ -122,7 +122,7 @@ export const ProposalList = () => {
                   Proposition n° {winningProposalId}
                 </Heading>
                 <Text>
-                  {proposals?.[winningProposalId]?.proposalDescription}
+                  {proposals?.[winningProposalId-1]?.proposalDescription}
                 </Text>
             </CardBody>
         <Stack divider={<StackDivider />} spacing="4"></Stack>
@@ -187,6 +187,12 @@ export const ProposalList = () => {
                                 ? " votes"
                                 : " vote"}
                             </Badge>
+                            {currentWorkflowStatus >= 3 && (votes.get(account)?.toNumber() === index+1) && 
+                            (
+                              <Badge ml="1" p="2" borderRadius="5" fontSize="0.8em" colorScheme="red">
+                                      Your choice
+                              </Badge>
+                            )}
                             {winningProposalId === (index+1) && currentWorkflowStatus!=5 &&
                               <Text fontSize="xs" color="green.800">
                                 Current winning proposal
@@ -205,13 +211,6 @@ export const ProposalList = () => {
                         >
                           Vote
                         </Button>
-                      )}
-                      {
-                      (currentWorkflowStatus >= 3) && ((votes.get(account)?.toNumber()) === (index+1)) && 
-                      (
-                        <Badge ml="1" p="2" borderRadius="5" fontSize="0.8em" colorScheme="red">
-                                Your choice
-                        </Badge>
                       )}
                     </Box>
                   </Box>
