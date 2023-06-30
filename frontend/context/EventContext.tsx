@@ -8,7 +8,7 @@ import { Voter } from "@/types/Voter";
 
 type EventContextType = {
   proposals: Proposal[];
-  votes: Map<string,BigNumber>;
+  votes: Map<string, BigNumber>;
   currentWorkflowStatus: WorkflowStatus;
   votersAddress: string[];
   winningProposalId: number;
@@ -19,7 +19,7 @@ export const EventContext = createContext<EventContextType>(null);
 export const EventProvider = ({ children }) => {
   const [proposals, setProposals] = useState<Proposal[]>([]);
   const [votersAddress, setVotersAddress] = useState<string[]>([]);
-  const [votes, setVotes] = useState<Map<string,BigNumber>>(new Map());
+  const [votes, setVotes] = useState<Map<string, BigNumber>>(new Map());
   const [currentWorkflowStatus, setCurrentWorkflowStatus] =
     useState<WorkflowStatus>();
   const [winningProposalId, setWinningProposalId] = useState<number>(null);
@@ -79,10 +79,10 @@ export const EventProvider = ({ children }) => {
       });
     }
 
-    return() => {
+    return () => {
       contract.removeAllListeners("ProposalRegistered");
     };
-  }, [votersAddress, account, isVoter,votes]);
+  }, [votersAddress, account, isVoter, votes]);
 
   useEffect(() => {
     const votersFilter = contract.filters.VoterRegistered();
@@ -94,7 +94,7 @@ export const EventProvider = ({ children }) => {
       setVotersAddress((prevState) => [...prevState, voterAddress]);
     });
 
-    return() => {
+    return () => {
       contract.removeAllListeners("VoterRegistered");
     };
   }, []);
@@ -107,15 +107,19 @@ export const EventProvider = ({ children }) => {
         const voter = event.args.voter;
         const proposalId = event.args.proposalId;
 
-        setVotes((prevVotes) => prevVotes.set(ethers.utils.getAddress(voter), proposalId));
-        console.log("new voter : ", voter, " - ", proposalId)      
-        console.log("votes : ", votes)      
+        setVotes((prevVotes) =>
+          prevVotes.set(ethers.utils.getAddress(voter), proposalId)
+        );
+        console.log("new voter : ", voter, " - ", proposalId);
+        console.log("votes : ", votes);
       });
     });
 
     contract.on("Voted", (voter, proposalId) => {
-      setVotes((prevVotes) => (new Map(prevVotes).set(ethers.utils.getAddress(voter), proposalId)))
-      console.log("new voter : ", voter, " - ", proposalId)
+      setVotes((prevVotes) =>
+        new Map(prevVotes).set(ethers.utils.getAddress(voter), proposalId)
+      );
+      console.log("new voter : ", voter, " - ", proposalId);
     });
 
     return () => {
@@ -133,7 +137,7 @@ export const EventProvider = ({ children }) => {
       setCurrentWorkflowStatus(newStatus);
     });
 
-    return() => {
+    return () => {
       contract.removeAllListeners("WorkflowStatusChange");
     };
   }, []);
@@ -150,6 +154,10 @@ export const EventProvider = ({ children }) => {
         });
       }
     });
+
+    return () => {
+      contract.removeAllListeners("WorkflowStatusChange");
+    };
   }, []);
 
   return (
