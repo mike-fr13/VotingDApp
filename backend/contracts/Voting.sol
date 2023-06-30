@@ -115,6 +115,7 @@ contract Voting is Ownable {
         proposalsArray[_id].voteCount++;
 
         // if _id proposal became the proposal with current max vote, then assign winningProposalID
+        // if equality, the last winning proposal remain the same
         // this code could avoid the loop in tally function
         if (proposalsArray[_id].voteCount > proposalsArray[winningProposalID].voteCount) {
             winningProposalID = _id;
