@@ -27,4 +27,7 @@ The frontend of the application provides a user-friendly interface for interacti
 
 To get started with the application, please refer to the individual README files in the backend and frontend directories for setup instructions and usage guidelines.
 
+# Deployment 
+The Voting DApp is deployed on [Vercel](https://voting-dapp-beryl.vercel.app/)
+
 Feel free to explore the code and documentation to understand the inner workings of the VotingDApp. Happy voting!
