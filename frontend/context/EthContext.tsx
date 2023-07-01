@@ -66,7 +66,13 @@ export const EthProvider = ({ children }) => {
     ethereum
       .request({ method: "eth_accounts" })
       .then((accounts) => {
-        setAccount(ethers.utils.getAddress(accounts[0]));
+        console.log("getConnectedAccounts - accounts.length : ", accounts.length)
+        if (accounts.length >0) {
+          setAccount(ethers.utils.getAddress(accounts[0]));
+        } 
+        else {
+          setAccount("")
+        }
       })
       .catch((error) => {
         console.log("getConnectedAccounts - error :", error.message);
