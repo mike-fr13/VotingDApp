@@ -75,7 +75,9 @@ export const EventProvider = ({ children }) => {
           setProposals((prevState) => {
             if (
               !!prevState.find(
-                (proposal) => proposal.proposalId === newProposal.proposalId
+                (proposal) =>
+                  proposal.proposalId.toNumber() ===
+                  newProposal.proposalId.toNumber()
               )
             ) {
               return prevState;
