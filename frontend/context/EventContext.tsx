@@ -68,7 +68,6 @@ export const EventProvider = ({ children }) => {
       contract.on("ProposalRegistered", (proposalId) => {
         console.log("ProposalRegisteredListener");
         contractWithSigner.getOneProposal(proposalId).then((proposal) => {
-          console.log("ProposalRegistered", proposal);
           const newProposal: Proposal = {
             proposalId,
             proposalDescription: proposal.description,
@@ -87,7 +86,6 @@ export const EventProvider = ({ children }) => {
   useEffect(() => {
     const votersFilter = contract.filters.VoterRegistered();
     contract.queryFilter(votersFilter).then((events) => {
-      console.log("VoterRegistered", events);
       setVotersAddress(events.map((event) => event.args.voterAddress));
     });
 
