@@ -74,14 +74,14 @@ export const EventProvider = ({ children }) => {
           };
           setProposals((prevState) => {
             if (
-              prevState.find(
+              !!prevState.find(
                 (proposal) => proposal.proposalId === newProposal.proposalId
               )
             ) {
               return prevState;
+            } else {
+              return [...prevState, newProposal];
             }
-            return;
-            [...prevState, newProposal];
           });
         });
       });

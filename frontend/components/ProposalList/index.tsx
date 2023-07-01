@@ -152,7 +152,6 @@ export const ProposalList = () => {
           <Stack divider={<StackDivider />} spacing="4"></Stack>
         </Card>
       )}
-
       <Box w="100%">
         {proposals && proposals.length === 0 ? (
           <Text fontSize="xl">There is no proposal yet</Text>
@@ -161,7 +160,7 @@ export const ProposalList = () => {
             <CardHeader>
               <Heading size="md">Proposals List</Heading>
             </CardHeader>
-            {proposals.map((proposal, index) => (
+            {proposals?.map((proposal, index) => (
               <CardBody key={index + 1}>
                 <Stack divider={<StackDivider />} spacing="4">
                   <Box
