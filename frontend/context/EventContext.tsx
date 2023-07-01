@@ -66,14 +66,23 @@ export const EventProvider = ({ children }) => {
       );
 
       contract.on("ProposalRegistered", (proposalId) => {
-        console.log("ProposalRegisteredListener");
         contractWithSigner.getOneProposal(proposalId).then((proposal) => {
           const newProposal: Proposal = {
             proposalId,
             proposalDescription: proposal.description,
             nbVote: proposal.voteCount,
           };
-          setProposals((prevState) => [...prevState, newProposal]);
+          setProposals((prevState) => {
+            if (
+              prevState.find(
+                (proposal) => proposal.proposalId === newProposal.proposalId
+              )
+            ) {
+              return prevState;
+            }
+            return;
+            [...prevState, newProposal];
+          });
         });
       });
     }
