@@ -87,13 +87,15 @@ export const EventProvider = ({ children }) => {
   useEffect(() => {
     const votersFilter = contract.filters.VoterRegistered();
     contract.queryFilter(votersFilter).then((events) => {
+      console.log("VoterRegistered", events);
       setVotersAddress(events.map((event) => event.args.voterAddress));
     });
 
     contract.on("VoterRegistered", (voterAddress) => {
-      if (!votersAddress.includes(voterAddress)) {
-        setVotersAddress((prevState) => [...prevState, voterAddress]);
-      }
+      setVotersAddress((prevState) => {
+        if (prevState.includes(voterAddress)) return prevState;
+        return [...prevState, voterAddress];
+      });
     });
 
     return () => {
