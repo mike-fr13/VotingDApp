@@ -155,7 +155,7 @@ export const EventProvider = ({ children }) => {
     return () => {
       contract.removeAllListeners("WorkflowStatusChange");
     };
-  }, []);
+  }, [account]);
 
   useEffect(() => {
     contractWithSigner.winningProposalID().then((id) => {
